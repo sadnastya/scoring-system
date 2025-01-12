@@ -5,8 +5,10 @@ import { useAuth } from "./hooks/useAuth";
 
 import SignIn from "./pages/SignIn/SignIn";
 import SignUp from "./pages/SignUp/SignUp";
-import Test from "./pages/Test/Test"; // IN PROGRESS
+import QuoteOsago from "./pages/QuoteOsago/QuoteOsago"; // IN PROGRESS
 import Profile from "./pages/Profile/Profile";
+import QualityControl from "./pages/Quality/QualityControl";
+import ModelMonitoring from "./pages/ModelMonitoring/ModelMonitoring";
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -15,8 +17,8 @@ function App() {
   const [theme, colorMode] = useTheme();
 
   const location = useLocation();
-  const showSidebarOn = ["/test", "/profile", "/history"];
-  const showTopbarOn = ["/test", "/profile"];
+  const showSidebarOn = ["/quoteOsago", "/profile", "/history", "/qualityControl", "/modelMonitoring"];
+  const showTopbarOn = ["/quoteOsago", "/profile", "/qualityControl", "/modelMonitoring"];
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -34,10 +36,14 @@ function App() {
 
               {/* protected routes */}
               <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<SignIn />} /> {/* IN PROGRESS */}
-              <Route path="/test" element={<Test />} /> {/* IN PROGRESS */}
+              <Route path="/" element={<SignIn />} />
+              <Route path="/quoteOsago" element={<QuoteOsago />} /> {/* IN PROGRESS */}
 
               <Route path="/profile" element={<Profile />} />
+
+              <Route path="/qualityControl" element={<QualityControl />} />
+
+              <Route path="/modelMonitoring" element={<ModelMonitoring />} />
                
               </Route>
             </Routes>
