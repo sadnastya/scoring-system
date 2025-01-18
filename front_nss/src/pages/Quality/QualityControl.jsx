@@ -87,7 +87,7 @@ const QualityControl = () => {
 
     },
     '& .Mui-checked + .MuiSwitch-track': {
-      backgroundColor: '#9db7bd',
+      backgroundColor: '#acaed1',
     }
   }
 

@@ -9,6 +9,9 @@ import QuoteOsago from "./pages/QuoteOsago/QuoteOsago"; // IN PROGRESS
 import Profile from "./pages/Profile/Profile";
 import QualityControl from "./pages/Quality/QualityControl";
 import ModelMonitoring from "./pages/ModelMonitoring/ModelMonitoring";
+import ModelCatalog from "./pages/ModelCatalog/ModelCatalog";
+import DataMart from "./pages/DWH/DataMart";
+import IncidentList from "./pages/Observability/IncidentList";
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -17,8 +20,29 @@ function App() {
   const [theme, colorMode] = useTheme();
 
   const location = useLocation();
-  const showSidebarOn = ["/quoteOsago", "/profile", "/history", "/qualityControl", "/modelMonitoring"];
-  const showTopbarOn = ["/quoteOsago", "/profile", "/qualityControl", "/modelMonitoring"];
+  const showSidebarOn = ["/quoteOsago",
+    "/profile", 
+    "/history", 
+    "/qualityControl", 
+    "/modelMonitoring",
+    "/modelCatalog",
+    "/dataMart",
+    "/manageRoles",
+    "/manageUsers",
+    "/incidentList"
+
+  ];
+  const showTopbarOn = [
+    "/quoteOsago",
+    "/profile",
+    "/qualityControl",
+    "/modelMonitoring",
+    "/modelCatalog",
+    "/dataMart",
+    "/manageRoles",
+    "/manageUsers",
+    "/incidentList"
+  ];
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -32,7 +56,7 @@ function App() {
               {/* unprotected routes */}
 
               <Route path="/signin" element={<SignIn />} />
-              <Route path="/signup" element={<SignUp />} />
+              <Route path="/manageUsers" element={<SignUp />} />
 
               {/* protected routes */}
               <Route element={<ProtectedRoutes />}>
@@ -44,6 +68,11 @@ function App() {
               <Route path="/qualityControl" element={<QualityControl />} />
 
               <Route path="/modelMonitoring" element={<ModelMonitoring />} />
+
+              <Route path="/modelCatalog" element={<ModelCatalog />} />
+
+              <Route path="/dataMart" element={<DataMart />} />
+              <Route path="/incidentList" element={<IncidentList />} />
                
               </Route>
             </Routes>

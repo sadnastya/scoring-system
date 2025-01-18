@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../hooks/useTheme";
+import api from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
+import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import AssuredWorkloadOutlinedIcon from '@mui/icons-material/AssuredWorkloadOutlined';
-import TimeToLeaveOutlinedIcon from '@mui/icons-material/TimeToLeaveOutlined';
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import RuleOutlinedIcon from '@mui/icons-material/RuleOutlined';
@@ -26,6 +27,7 @@ import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettin
 import LockPersonOutlinedIcon from '@mui/icons-material/LockPersonOutlined';
 import AddchartOutlinedIcon from '@mui/icons-material/AddchartOutlined';
 import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
+import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -53,11 +55,32 @@ const CustomTitle = ({ children }) => {
   );
 };
 
+
+
+
 const Sidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("/quoteOsago");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get("/auth/profile");
+        console.log(response.data);
+        setEmail(response.data.email);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchProfile();
+  },);
+
+
 
   return (
     <Box
@@ -129,7 +152,8 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Имя Фамилия
+                  {email}
+
                 </Typography>
               </Box>
             </Box>
@@ -137,95 +161,18 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
 
-            <SubMenu
-              icon={<TimeToLeaveOutlinedIcon />}
-              title="Страхование ОСАГО"
-            >
-              <Item
-                title="Получить скоринг"
-                to="/quoteOsago"
-                icon={<AssuredWorkloadOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <SubMenu
-                icon={<AssignmentTurnedInOutlinedIcon />}
-                title="Качество данных"
-              >
-
-                <Item
-                  title={
-                    <CustomTitle>
-                      Управление
-                      <br />
-                      проверками
-                    </CustomTitle>
-                  }
-                  to="/qualityControl"
-                  icon={<TuneOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-
-                <Item
-                  title="История проверок"
-                  to="/qualityHistory"
-                  icon={<RuleOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-                
-                <Item
-                  title={
-                    <CustomTitle>
-                      История действий
-                      <br />
-                      администратора
-                    </CustomTitle>
-                  }
-                  to="/qualityAdminHistory"
-                  icon={<AssignmentIndOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-
-                <Item
-                  title = "Аналитика запросов"
-                  to="/qualityAnalytics"
-                  icon={<TimelineOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-              </SubMenu>
-              <Item
-                title="Каталог моделей"
-                to="/modelCatalog"
-                icon={<ListAltOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-
-              <Item
-                title="Мониторинг моделей"
-                to="/modelMonitoring"
-                icon={<LegendToggleOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </SubMenu>
+            <Item
+              title="Получить скоринг"
+              to="/quoteOsago"
+              icon={<AssuredWorkloadOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
             <SubMenu
               icon={<HealthAndSafetyOutlinedIcon />}
               title="Страхование жизни"
             >
-              <Item
-                title="Получить скоринг"
-                to="/quoteLife"
-                icon={<ContactsOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              
               <Item
                 title={
                   <CustomTitle>
@@ -239,7 +186,7 @@ const Sidebar = () => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              
+
               <Item
                 title={
                   <CustomTitle>
@@ -254,6 +201,98 @@ const Sidebar = () => {
                 setSelected={setSelected}
               />
             </SubMenu>
+
+            <SubMenu
+              icon={<AssignmentTurnedInOutlinedIcon />}
+              title="Качество данных"
+              selected={selected}
+              setSelected={setSelected}
+            >
+
+              <Item
+                title={
+                  <CustomTitle>
+                    Управление
+                    <br />
+                    проверками
+                  </CustomTitle>
+                }
+                to="/qualityControl"
+                icon={<TuneOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="История проверок"
+                to="/qualityHistory"
+                icon={<RuleOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title={
+                  <CustomTitle>
+                    История действий
+                    <br />
+                    администратора
+                  </CustomTitle>
+                }
+                to="/qualityAdminHistory"
+                icon={<AssignmentIndOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="Аналитика запросов"
+                to="/qualityAnalytics"
+                icon={<TimelineOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            </SubMenu>
+
+            <SubMenu
+              title="Витрина данных"
+              icon={<StorageOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            >
+              <Item
+                title="Настройки"
+                to="/dataMartSettings"
+                icon={<TuneOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="Витрина"
+                to="/dataMart"
+                icon={<TableChartOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+            </SubMenu>
+
+            <Item
+              title="Каталог моделей"
+              to="/modelCatalog"
+              icon={<ListAltOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Мониторинг моделей"
+              to="/modelMonitoring"
+              icon={<LegendToggleOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
             <SubMenu
               icon={<RemoveRedEyeOutlinedIcon />}
@@ -290,61 +329,61 @@ const Sidebar = () => {
               title="Администрирование"
             >
 
-            <Item
-              title={
-                <CustomTitle>
-                  Управление
-                  <br />
-                  учётными записями
-                </CustomTitle>
-              }
-              to="/manageUsers"
-              icon={<TuneOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title={
-                <CustomTitle>
-                  Управление
-                  <br />
-                  ролями и доступом
-                </CustomTitle>
-              }
-              to="/manageRoles"
-              icon={<LockPersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Отчётность"
-              to="/reporting"
-              icon={<AddchartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+              <Item
+                title={
+                  <CustomTitle>
+                    Управление
+                    <br />
+                    учётными записями
+                  </CustomTitle>
+                }
+                to="/manageUsers"
+                icon={<TuneOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title={
+                  <CustomTitle>
+                    Управление
+                    <br />
+                    ролями и доступом
+                  </CustomTitle>
+                }
+                to="/manageRoles"
+                icon={<LockPersonOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Отчётность"
+                to="/reporting"
+                icon={<AddchartOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
-            <Item
-              title={
-                <CustomTitle>
-                  Протокол сессий
-                  <br />
-                  пользователей
-                </CustomTitle>
-              }
-              to="/userSessionHistory"
-              icon={<GroupsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            
-            <Item
-              title="Протокол изменений"
-              to="/profile"
-              icon={<HistoryOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+              <Item
+                title={
+                  <CustomTitle>
+                    Протокол сессий
+                    <br />
+                    пользователей
+                  </CustomTitle>
+                }
+                to="/userSessionHistory"
+                icon={<GroupsOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+
+              <Item
+                title="Протокол изменений"
+                to="/profile"
+                icon={<HistoryOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
 
             </SubMenu>
 

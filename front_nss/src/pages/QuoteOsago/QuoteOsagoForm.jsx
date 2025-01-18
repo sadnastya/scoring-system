@@ -158,7 +158,7 @@ const Page = () => {
   };
 
   return (
-    <>
+    <Box m="20px">
       <Modal
         open={IsOpen}
         onClose={handleClose}
@@ -454,7 +454,7 @@ const Page = () => {
         )}
       </Formik>
 
-    </>
+    </Box>
   );
 
 };
