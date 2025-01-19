@@ -2,6 +2,7 @@ import { ColorModeContext, useTheme } from "./hooks/useTheme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
+import { PermifyProvider } from "@permify/react-role";
 
 import SignIn from "./pages/SignIn/SignIn";
 import SignUp from "./pages/SignUp/SignUp";
@@ -20,7 +21,8 @@ function App() {
   const [theme, colorMode] = useTheme();
 
   const location = useLocation();
-  const showSidebarOn = ["/quoteOsago",
+  const showSidebarOn = [
+    "/quoteOsago",
     "/profile", 
     "/history", 
     "/qualityControl", 
@@ -45,41 +47,43 @@ function App() {
   ];
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div className="app">
-          {showSidebarOn.includes(location.pathname) && <Sidebar />}
-          <main className="content">
-            {showTopbarOn.includes(location.pathname) && <Topbar />}
-            <Routes>
-              {/* unprotected routes */}
+    <PermifyProvider>
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <div className="app">
+            {showSidebarOn.includes(location.pathname) && <Sidebar />}
+            <main className="content">
+              {showTopbarOn.includes(location.pathname) && <Topbar />}
+              <Routes>
+                {/* unprotected routes */}
 
-              <Route path="/signin" element={<SignIn />} />
-              <Route path="/manageUsers" element={<SignUp />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/manageUsers" element={<SignUp />} />
 
-              {/* protected routes */}
-              <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<SignIn />} />
-              <Route path="/quoteOsago" element={<QuoteOsago />} /> {/* IN PROGRESS */}
+                {/* protected routes */}
+                <Route element={<ProtectedRoutes />}>
+                <Route path="/" element={<SignIn />} />
+                <Route path="/quoteOsago" element={<QuoteOsago />} /> {/* IN PROGRESS */}
 
-              <Route path="/profile" element={<Profile />} />
+                <Route path="/profile" element={<Profile />} />
 
-              <Route path="/qualityControl" element={<QualityControl />} />
+                <Route path="/qualityControl" element={<QualityControl />} />
 
-              <Route path="/modelMonitoring" element={<ModelMonitoring />} />
+                <Route path="/modelMonitoring" element={<ModelMonitoring />} />
 
-              <Route path="/modelCatalog" element={<ModelCatalog />} />
+                <Route path="/modelCatalog" element={<ModelCatalog />} />
 
-              <Route path="/dataMart" element={<DataMart />} />
-              <Route path="/incidentList" element={<IncidentList />} />
-               
-              </Route>
-            </Routes>
-          </main>
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+                <Route path="/dataMart" element={<DataMart />} />
+                <Route path="/incidentList" element={<IncidentList />} />
+                
+                </Route>
+              </Routes>
+            </main>
+          </div>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
+    </PermifyProvider>
   );
 }
 

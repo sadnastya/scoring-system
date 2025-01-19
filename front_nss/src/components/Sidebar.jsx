@@ -6,6 +6,7 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../hooks/useTheme";
 import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import { HasAccess } from "@permify/react-role";
 
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
@@ -161,6 +162,9 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
 
+          <HasAccess
+            roles={["admin"]} 
+          >
             <Item
               title="Получить скоринг"
               to="/quoteOsago"
@@ -168,6 +172,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+          </HasAccess>
 
             <SubMenu
               icon={<HealthAndSafetyOutlinedIcon />}
@@ -396,3 +401,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
