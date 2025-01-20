@@ -4,15 +4,16 @@ import { Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { PermifyProvider } from "@permify/react-role";
 
-import SignIn from "./pages/SignIn/SignIn";
-import SignUp from "./pages/SignUp/SignUp";
-import QuoteOsago from "./pages/QuoteOsago/QuoteOsago"; // IN PROGRESS
+import QuoteOsago from "./pages/QuoteOsago/QuoteOsago";
 import Profile from "./pages/Profile/Profile";
 import QualityControl from "./pages/Quality/QualityControl";
 import ModelMonitoring from "./pages/ModelMonitoring/ModelMonitoring";
 import ModelCatalog from "./pages/ModelCatalog/ModelCatalog";
 import DataMart from "./pages/DWH/DataMart";
 import IncidentList from "./pages/Observability/IncidentList";
+import ListQuality from "./pages/Quality/QualityHistory";
+import SignIn from "./pages/UM/SignIn/SignIn";
+import AccountManagement from "./pages/UM/SignUp/SignUp";
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -26,24 +27,26 @@ function App() {
     "/profile", 
     "/history", 
     "/qualityControl", 
-    "/modelMonitoring",
+    "/createReport",
     "/modelCatalog",
     "/dataMart",
     "/manageRoles",
     "/manageUsers",
-    "/incidentList"
+    "/incidentList",
+    "/qualityHistory"
 
   ];
   const showTopbarOn = [
     "/quoteOsago",
     "/profile",
     "/qualityControl",
-    "/modelMonitoring",
+    "/createReport",
     "/modelCatalog",
     "/dataMart",
     "/manageRoles",
     "/manageUsers",
-    "/incidentList"
+    "/incidentList",
+    "/qualityHistory"
   ];
 
   return (
@@ -59,7 +62,7 @@ function App() {
                 {/* unprotected routes */}
 
                 <Route path="/signin" element={<SignIn />} />
-                <Route path="/manageUsers" element={<SignUp />} />
+                <Route path="/manageUsers" element={<AccountManagement />} />
 
                 {/* protected routes */}
                 <Route element={<ProtectedRoutes />}>
@@ -69,8 +72,9 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
 
                 <Route path="/qualityControl" element={<QualityControl />} />
+                <Route path="/qualityHistory" element={<ListQuality />} />
 
-                <Route path="/modelMonitoring" element={<ModelMonitoring />} />
+                <Route path="/createReport" element={<ModelMonitoring />} />
 
                 <Route path="/modelCatalog" element={<ModelCatalog />} />
 

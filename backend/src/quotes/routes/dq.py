@@ -39,7 +39,7 @@ def log_request(data, product_code, runId, status="received"):
             request=data,
             product_code=product_code,
             status=status,
-            date=datetime.utcnow(),
+            date=datetime.now(),
             deleted=False,
         )
         db.session.add(new_request)
@@ -70,7 +70,7 @@ def log_check_history(check_id, product_type, status, runId):
             check_id=check_id,
             product_type=product_type,
             status=status,
-            date=datetime.utcnow(),
+            date=datetime.now(),
             runId=runId,
         )
         db.session.add(new_entry)
@@ -140,7 +140,7 @@ def dq1(data=None):
                 status=False,
                 runId=runId,
             )
-            return jsonify({"error": str(e)}), 400
+            return jsonify({"error": str(e), "details": "DQ1 failed"}), 400
     else:
         return (
             jsonify({"error": "Проверка DQ1 выключена для данного продукта."}),
@@ -168,17 +168,40 @@ def dq2(data=None):
         )
     log_request(data=data, product_code=product_code, runId=runId)
     check, check_status = validate_check_type(
-        check_type="DQ2", product_code=product_code
+        check_type="DQ2.1", product_code=product_code
     )
+    # 2.1 Проверка продукта
     if check_status is True:
-        # Проверка наличия кода продукта в таблице products
-        product_exists = (
+        # product_exists = (
+        #     db.session.query(Products)
+        #     .filter(Products.product_type == product_type)
+        #     .first()
+        # )
+        # if not product_exists:
+        #     log_check_history(
+        #         check_id=check.check_id,
+        #         product_type=product_type,
+        #         status=False,
+        #         runId=runId,
+        #     )
+        #     return (
+        #         jsonify(
+        #             {
+        #                 "error": "Расчет скорингового балла по данному "
+        #                 "страховому продукту не предусмотрен в системе.",
+        #                 "details": f"productCode '{product_code}'.",
+        #             }
+        #         ),
+        #         400,
+        #     )
+
+        # Проверка наличия типа продукта в таблице products
+        product_type_exists = (
             db.session.query(Products)
             .filter(Products.product_type == product_type)
             .first()
         )
-        if not product_exists:
-            log_request(data=data, product_code=product_code, runId=runId)
+        if not product_type_exists:
             log_check_history(
                 check_id=check.check_id,
                 product_type=product_type,
@@ -188,130 +211,205 @@ def dq2(data=None):
             return (
                 jsonify(
                     {
-                        "error": "Расчет скорингового балла по данному "
-                        "страховому продукту не предусмотрен в системе.",
-                        "details": f"productCode '{product_code}'.",
+                        "error": "Расчет скорингового балла по данному страховому "  # noqa E501
+                        "продукту не предусмотрен в системе.",
+                        "description": f"productType '{product_type}'.",
+                        "detals": "DQ2.1 failed",
                     }
                 ),
                 400,
             )
-    else:
-        return (
-            jsonify({"error": "Проверка DQ2 выключена для данного продукта."}),
-            400,
-        )
 
-    # Проверка наличия типа продукта в таблице products
-    product_type_exists = (
-        db.session.query(Products)
-        .filter(Products.product_type == product_type)
-        .first()
-    )
-    if not product_type_exists:
-        log_request(data=data, product_code=product_code, runId=runId)
-        log_check_history(
-            check_id=check.check_id,
-            product_type=product_type,
-            status=False,
-            runId=runId,
+        # Проверка соответствия типа и кода продукта
+        product_type_for_code = (
+            db.session.query(Products)
+            .filter(Products.product_code == product_code)
+            .first()
+            .product_type
         )
-        return (
-            jsonify(
-                {
-                    "error": "Расчет скорингового балла по данному страховому "
-                    "продукту не предусмотрен в системе.",
-                    "details": f"productType '{product_type}'.",
-                }
-            ),
-            400,
-        )
-
-    # Проверка соответствия типа и кода продукта
-    product_type_for_code = (
-        db.session.query(Products)
-        .filter(Products.product_code == product_code)
-        .first()
-        .product_type
-    )
-    if product_type_for_code != product_type:
-        log_check_history(
-            check_id=check.check_id,
-            product_type=product_type,
-            status=False,
-            runId=runId,
-        )
-        return (
-            jsonify(
-                {
-                    "error": "Расчет скорингового балла по данному страховому "
-                    "продукту не предусмотрен в системе.",
-                    "details": f"productType '{product_type},"
-                    f"productCode: '{product_code}'.",
-                }
-            ),
-            400,
-        )
-    # 2.1 Проверка возраста субъекта (минимум 18 лет)
-    # TODO: переделать для списка:
-    birth_date = (
-        data.get("quote", {}).get("subjects", {})[0].get("birthDate", None)
-    )
-    if birth_date is None:
-        return (
-            jsonify(
-                {
-                    "error": "Дата рождения не указана. "
-                    "Проверьте структуру JSON."
-                }
-            ),
-            400,
-        )
-
-    age = calculate_age(birth_date)
-    if age < 18:
-        log_check_history(
-            check_id=check.check_id,
-            product_type=product_type,
-            status=False,
-            runId=runId,
-        )
-        return jsonify({"error": "Клиент не достиг совершеннолетия"}), 400
-
-    # 2.2 Проверка возраста субъекта (максимум 90 лет)
-    if age > 90:
+        if product_type_for_code != product_type:
+            log_check_history(
+                check_id=check.check_id,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Расчет скорингового балла по данному страховому"  # noqa E501
+                        "продукту не предусмотрен в системе.",
+                        "descriptions": f"productType '{product_type},"
+                        f"productCode: '{product_code}'.",
+                        "detals": "DQ2.1 failed",
+                    }
+                ),
+                400,
+            )
         log_check_history(
             check_id=check.check_id,
             product_type=product_type,
             status=True,
             runId=runId,
         )
+    else:
         return (
-            jsonify({"error": "Возраст клиента выше допустимого значения"}),
+            jsonify(
+                {"error": "Проверка DQ2.1 выключена для данного продукта."}
+            ),
             400,
         )
+    # 2.2 Проверка субъекта
+    check, check_status = validate_check_type(
+        check_type="DQ2.2", product_code=product_code
+    )
+    if check_status is True:
+        # TODO: переделать для списка:
+        birth_date = (
+            data.get("quote", {}).get("subjects", {})[0].get("birthDate", None)
+        )
+        if birth_date is None:
+            return (
+                jsonify(
+                    {
+                        "error": "Дата рождения не указана. "
+                        "Проверьте структуру JSON."
+                    }
+                ),
+                400,
+            )
 
-    # 2.3 Проверка корректности пола субъекта
-    gender = data.get("quote", {}).get("subjects", {})[0].get("gender", None)
-    if gender not in ["male", "female"]:
+        age = calculate_age(birth_date)
+        if age < 18:
+            log_check_history(
+                check_id=check.check_id,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Клиент не достиг совершеннолетия",
+                        "detals": "DQ2.2 failed",
+                    }
+                ),
+                400,
+            )
+
+        # 2.2 Проверка возраста субъекта (максимум 90 лет)
+        if age > 90:
+            log_check_history(
+                check_id=check.check_id,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Возраст клиента выше допустимого значения",
+                        "detals": "DQ2.2 failed",
+                    }
+                ),
+                400,
+            )
         log_check_history(
             check_id=check.check_id,
             product_type=product_type,
             status=False,
             runId=runId,
         )
-        return jsonify({"error": "Выберите пол: female/male"}), 400
-    log_check_history(
-        check_id=check.check_id,
-        product_type=product_type,
-        status=True,
-        runId=runId,
+        # 2.2 Проверка корректности пола субъекта
+        gender = (
+            data.get("quote", {}).get("subjects", {})[0].get("gender", None)
+        )
+        if gender not in ["male", "female"]:
+            log_check_history(
+                check_id=check.check_id,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Выберите пол: female/male",
+                        "detals": "DQ2.2 failed",
+                    }
+                ),
+                400,
+            )
+        log_check_history(
+            check_id=check.check_id,
+            product_type=product_type,
+            status=True,
+            runId=runId,
+        )
+    else:
+        return (
+            jsonify(
+                {"error": "Проверка DQ2.2 выключена для данного продукта."}
+            ),
+            400,
+        )
+    check, check_status = validate_check_type(
+        check_type="DQ2.3", product_code=product_code
     )
-    return jsonify({"message": "Проверка DQ2 пройдена успешно."}), 200
+    if check_status is True:
+        # TODO: сделать поиск по нескольким документам
+        doc_type = (
+            data.get("quote", {})
+            .get("subjects", {})[0]
+            .get("documents", None)[0]
+            .get("documentType", None)
+        )
+        if doc_type is None:
+            return (
+                jsonify(
+                    {
+                        "error": "Тип документа не найден. "
+                        "Проверьте структуру JSON."
+                    }
+                ),
+                400,
+            )
+        if doc_type not in {"passport", "driving_license"}:
+            log_check_history(
+                check_id=check.check_id,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
+            return (
+                jsonify(
+                    {
+                        "error": "Неверный тип документа.",
+                        "detals": "DQ2.3 failed",
+                    }
+                ),
+                400,
+            )
+        log_check_history(
+            check_id=check.check_id,
+            product_type=product_type,
+            status=True,
+            runId=runId,
+        )
+
+    else:
+        return (
+            jsonify(
+                {"error": "Проверка DQ2.3 выключена для данного продукта."}
+            ),
+            400,
+        )
+    return jsonify({"message": "Проверки DQ2 пройдены успешно."}), 200
 
 
 @bp.route("/", methods=["GET"])
 @token_required
-# @admin_required
+@admin_required
 def get_check_history(user):
     """
     Эндпоинт для получения списка всех проверок с возможностью фильтрации.
@@ -358,14 +456,13 @@ def get_check_history(user):
 
 
 @bp.route("/<int:check_id>", methods=["GET", "DELETE", "PATCH"])
-@token_required
-@admin_required
-def handle_check_dq(user, check_id):
+# @token_required
+# @admin_required
+def handle_check_dq(check_id):
     """
     Эндпоинт для получения, удаления записи из истории проверок
     или изменения статуса проверки.
     """
-    check_id = request.json.get("check_id")
     check_exists = (
         db.session.query(CheckHistory).filter_by(id=check_id).first()
     )
@@ -444,3 +541,74 @@ def handle_check_dq(user, check_id):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
+
+
+@bp.route("/manage", methods=["PUT"])
+@token_required
+@admin_required
+def manage_checks(user):
+    data = request.json
+    check_type = data.get("check_type")
+    product_type = data.get("product_type")
+    condition = data.get("condition")
+    if product_type not in {"osago", "life"}:
+        return (
+            jsonify(
+                {"error": 'product_type must be in \'{"osago", "life"}\' '}
+            ),
+            400,
+        )
+    if check_type not in {"DQ1", "DQ2.1", "DQ2.2", "DQ2.3"}:
+        return (
+            jsonify(
+                {
+                    "error": 'check must be in \'{"DQ1", "DQ2.1", "DQ2.2", "DQ2.3"}\' '  # noqa E501
+                }
+            ),
+            400,
+        )
+    if condition not in {True, False}:
+        return (
+            jsonify({"error": "condition must be True or False"}),
+            400,
+        )
+
+    try:
+        checks = (
+            db.session.query(Checks).filter(Checks.type == check_type).all()
+        )
+        check_ids = [check.check_id for check in checks]
+        product_code = (
+            db.session.query(Products)
+            .filter(Products.product_type == product_type)
+            .first()
+            .product_code
+        )
+        updated_rows = (
+            db.session.query(CheckProductStatus)
+            .filter(
+                CheckProductStatus.check_id.in_(check_ids),
+                CheckProductStatus.product_code == product_code,
+            )
+            .update({"condition": condition}, synchronize_session="fetch")
+        )
+
+        if updated_rows == 0:
+            return (
+                jsonify(
+                    {"message": "No records updated. Check your filters."}
+                ),
+                404,
+            )
+        db.session.commit()
+        action = "enabled" if condition else "disabled"
+        return (
+            jsonify(
+                {"message": f"Checks type '{check_type}' have been {action}"}
+            ),
+            200,
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

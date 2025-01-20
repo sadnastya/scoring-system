@@ -855,6 +855,77 @@ paths:
           description: Доступно только админу.
         '500':
           description: Ошибка сервера.
+  /api/dq/manage:
+    put:
+      tags:
+        - DataQuality
+      security:
+        - BearerAuth: []
+      summary: Manage check statuses
+      description: Включает или отключает проверки для заданного типа продукта и проверки.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                check_type:
+                  type: string
+                  enum: ["DQ1", "DQ2.1", "DQ2.2", "DQ2.3"]
+                  description: Тип проверки.
+                product_type:
+                  type: string
+                  enum: ["osago", "life"]
+                  description: Тип продукта.
+                condition:
+                  type: boolean
+                  description: Состояние проверки (включить или выключить).
+              required:
+                - check_type
+                - product_type
+                - condition
+      responses:
+        "200":
+          description: Успешное обновление состояния проверок.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Checks type 'DQ1' have been enabled
+        "400":
+          description: Ошибка валидации данных запроса.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: product_type must be in '{"osago", "life"}'
+        "404":
+          description: Записи для обновления не найдены.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No records updated. Check your filters.
+        "500":
+          description: Внутренняя ошибка сервера.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Database connection error
 
   /api/dwh:
     get:
@@ -1081,6 +1152,93 @@ paths:
                 properties:
                   error:
                     type: string
+
+  /api/export:
+    post:
+      tags:
+        - DWH
+      security:
+        - BearerAuth: []
+      summary: Экспорт данных в CSV
+      description: Экспортирует данные из DWH в формате CSV в соответствии с фильтрами, переданными в запросе.
+      operationId: exportData
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_type:
+                  type: string
+                  description: Тип продукта
+                run_id:
+                  type: string
+                  description: ID выполнения
+                quote_id:
+                  type: string
+                  description: ID цитаты
+                briefcase_date:
+                  type: string
+                  format: date
+                  description: Дата кейса
+                start_date:
+                  type: string
+                  format: date
+                  description: Дата начала
+                end_date:
+                  type: string
+                  format: date
+                  description: Дата окончания
+                model_name:
+                  type: string
+                  description: Название модели
+                feature_name:
+                  type: string
+                  description: Название признака
+                feature_value:
+                  type: string
+                  description: Значение признака
+                predict:
+                  type: number
+                  format: float
+                  description: Прогноз
+                is_insurance_case:
+                  type: boolean
+                  description: Признак страхового случая
+                data_insurance_case:
+                  type: string
+                  description: Данные страхового случая
+      responses:
+        '200':
+          description: Данные успешно экспортированы в CSV
+          content:
+            text/csv:
+              schema:
+                type: string
+                example: |
+                  product_type,run_id,quote_id,briefcase_date,start_date,end_date,model_name,feature_name,feature_value,predict,is_insurance_case,data_insurance_case
+                  Life,run123,quote001,2023-01-01,2023-01-10,2023-01-20,ModelX,age,45,0.85,true,Data123
+        '400':
+          description: Ошибка в запросе (например, некорректные фильтры)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid filters."
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error."
   /api/observability:
     get:
       tags:
@@ -1090,6 +1248,12 @@ paths:
       summary: Get a list of incidents
       description: Retrieve incidents with optional filters and pagination.
       parameters:
+        - name: state
+          in: query
+          description: Filter by id_incident.
+          required: false
+          schema:
+            type: integer
         - name: state
           in: query
           description: Filter by incident state (e.g., Active, In Progress, Resolved).
@@ -1202,6 +1366,9 @@ paths:
             schema:
               type: object
               properties:
+                id_incident:
+                  type: integer
+                  nullable: true
                 state:
                   type: string
                   nullable: true
@@ -1655,6 +1822,255 @@ paths:
                 properties:
                   error:
                     type: string
+
+
+  /api/model_catalog:
+    get:
+      tags:
+        - ModelCatalog
+      security:
+        - BearerAuth: []
+      summary: Получить список моделей
+      description: Возвращает список всех моделей с возможностью фильтрации.
+      parameters:
+        - in: query
+          name: model_name
+          schema:
+            type: string
+          description: Фильтрация по имени модели
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Номер страницы
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Количество записей на странице
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: integer
+                  total_pages:
+                    type: integer
+                  total_records:
+                    type: integer
+                  per_page:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        model_id:
+                          type: integer
+                        product_code:
+                          type: string
+                        model_name:
+                          type: string
+                        status:
+                          type: boolean
+                        model_version:
+                          type: string
+                        model_description:
+                          type: string
+                        creation_date:
+                          type: string
+                          format: date-time
+                        last_launch_date:
+                          type: string
+                          format: date-time
+                        last_modified_date:
+                          type: string
+                          format: date-time
+        '400':
+          description: Неверные параметры пагинации
+        '500':
+          description: Ошибка на сервере
+
+    post:
+      tags:
+        - ModelCatalog
+      security:
+        - BearerAuth: []
+      summary: Создать новую модель
+      description: Создает новую модель с заданными параметрами.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - model_name
+                - product_code
+                - status
+              properties:
+                model_name:
+                  type: string
+                product_code:
+                  type: string
+                status:
+                  type: boolean
+                model_version:
+                  type: string
+                  default: "1.0"
+                model_description:
+                  type: string
+                  default: ""
+      responses:
+        '201':
+          description: Модель успешно создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  model_id:
+                    type: integer
+        '400':
+          description: Отсутствуют обязательные поля
+        '500':
+          description: Ошибка на сервере
+
+  /api/model_catalog/{model_id}:
+    get:
+      tags:
+        - ModelCatalog
+      security:
+        - BearerAuth: []
+      summary: Получить модель по ID
+      description: Возвращает модель по заданному ID.
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: integer
+          description: ID модели
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model_id:
+                    type: integer
+                  product_code:
+                    type: string
+                  model_name:
+                    type: string
+                  status:
+                    type: boolean
+                  model_version:
+                    type: string
+                  model_description:
+                    type: string
+                  creation_date:
+                    type: string
+                    format: date-time
+                  last_launch_date:
+                    type: string
+                    format: date-time
+                  last_modified_date:
+                    type: string
+                    format: date-time
+        '404':
+          description: Модель не найдена
+        '500':
+          description: Ошибка на сервере
+
+    put:
+      tags:
+        - ModelCatalog
+      security:
+        - BearerAuth: []
+      summary: Обновить модель по ID
+      description: Обновляет существующую модель с заданными параметрами.
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: integer
+          description: ID модели
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model_name:
+                  type: string
+                product_code:
+                  type: string
+                status:
+                  type: boolean
+                model_version:
+                  type: string
+                model_description:
+                  type: string
+      responses:
+        '200':
+          description: Модель обновлена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Ошибочные данные запроса
+        '404':
+          description: Модель не найдена
+        '500':
+          description: Ошибка на сервере
+
+    delete:
+      tags:
+        - ModelCatalog
+      security:
+        - BearerAuth: []
+      summary: Удалить модель по ID
+      description: Удаляет модель по заданному ID.
+      parameters:
+        - in: path
+          name: model_id
+          required: true
+          schema:
+            type: integer
+          description: ID модели
+      responses:
+        '200':
+          description: Модель успешно удалена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Модель не может быть удалена, так как связана с оценками
+        '404':
+          description: Модель не найдена
+        '500':
+          description: Ошибка на сервере
+
+
 components:
   securitySchemes:
     BearerAuth:

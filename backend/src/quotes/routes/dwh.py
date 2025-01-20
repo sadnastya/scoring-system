@@ -71,7 +71,7 @@ def get_data(user):
         incoming_filters = request.args.to_dict()
 
     try:
-        base_query, query_filters = apply_filters(base_query, incoming_filters)
+        base_query, filters = apply_filters(base_query, incoming_filters)
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
     except ValueError:

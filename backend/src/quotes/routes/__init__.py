@@ -4,3 +4,4 @@ from quotes.routes.dq import bp as bp_dq
 from quotes.routes.dwh import bp as bp_dwh
 from quotes.routes.observability import bp as bp_obs
 from quotes.routes.monitoring import bp as bp_monitor
+from quotes.routes.model_catalog import bp as bp_catalog

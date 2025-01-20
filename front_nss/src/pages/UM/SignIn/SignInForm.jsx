@@ -8,8 +8,8 @@ import { Box, Button, TextField, useTheme } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 
-import { ColorModeContext } from "../../hooks/useTheme";
-import { useAuth } from "../../hooks/useAuth"; 
+import { ColorModeContext } from "../../../hooks/useTheme";
+import { useAuth } from "../../../hooks/useAuth"; 
 
 const SignInForm = () => {
   const theme = useTheme();

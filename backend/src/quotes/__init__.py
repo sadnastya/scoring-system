@@ -3,7 +3,15 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from quotes.config import Config, mail, db
-from quotes.routes import bp_auth, bp_quotes, bp_dq, bp_dwh, bp_obs, bp_monitor
+from quotes.routes import (
+    bp_auth,
+    bp_quotes,
+    bp_dq,
+    bp_dwh,
+    bp_obs,
+    bp_monitor,
+    bp_catalog,
+)
 
 from quotes.models.core import Documents  # noqa: F401
 from quotes.models.core import Models  # noqa: F401
@@ -32,6 +40,7 @@ def create_app():
     app.register_blueprint(bp_dwh, url_prefix="/api/dwh")
     app.register_blueprint(bp_obs, url_prefix="/api/observability")
     app.register_blueprint(bp_monitor, url_prefix="/api/monitoring")
+    app.register_blueprint(bp_catalog, url_prefix="/api/model_catalog")
     db.init_app(app)  # Связь экземпляра бд с приложением
     migrate = Migrate(app, db)  # Создание миграций
     mail.init_app(app)
