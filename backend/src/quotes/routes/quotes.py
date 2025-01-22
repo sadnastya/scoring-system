@@ -4,8 +4,9 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy import text
 
 from quotes.config import db, logger
+from quotes.models.dq import CheckProductStatus
 from quotes.routes.dq import dq1, dq2
-from quotes.utils import QuoteManager, token_required
+from quotes.utils import QuoteManager, token_required, validate_input_data
 
 bp = Blueprint("quotes", __name__)
 
@@ -151,25 +152,51 @@ def handle_quote(user):
         return jsonify({"error": "No data in request"}), 400
     try:
         # ответ от dq1 эндпоинта:
-        dq1_response = dq1(input_data)
-        if isinstance(dq1_response, tuple):
-            dq1_data, dq1_status_code = dq1_response
-            # если ошибка, то добавляем указание какая dq не прошла:
-            if dq1_status_code != 200 and dq1_status_code != 403:
-                dq1_data = dq1_data.get_json()
-                # dq1_data["type"] = "DQ1 failed"
-                return jsonify(dq1_data), dq1_status_code
+        product_code = (
+            input_data.get("quote").get("product").get("productCode", None)
+        )
+        dq1_status = (
+            db.session.query(CheckProductStatus)
+            .filter(
+                CheckProductStatus.check_id == 1,
+                CheckProductStatus.product_code == product_code,
+            )
+            .first()
+            .condition
+        )
+        if dq1_status:
+            dq1_response = dq1(input_data)
+            if isinstance(dq1_response, tuple):
+                dq1_data, dq1_status_code = dq1_response
+                # если ошибка, то добавляем указание какая dq не прошла:
+                if dq1_status_code != 200 and dq1_status_code != 403:
+                    dq1_data = dq1_data.get_json()
+                    # dq1_data["type"] = "DQ1 failed"
+                    return jsonify(dq1_data), dq1_status_code
         # если все ок, то просто дальше возращаем ответ:
         # ответ от dq2эндпоинта:
-        dq2_response = dq2(input_data)
-        if isinstance(dq2_response, tuple):
-            dq2_data, dq2_status_code = dq2_response
-            # если ошибка, то добавляем указание какая dq не прошла:
-            if dq2_status_code != 200:
-                dq2_data = dq2_data.get_json()
-                # dq2_data["type"] = "DQ2 failed"
-                return jsonify(dq2_data), dq2_status_code
-        validated_data = dq1_response  # TODO: РЕФАКТОР
+        dq2_status = any(
+            check.condition
+            for check in (
+                db.session.query(CheckProductStatus)
+                .filter(
+                    CheckProductStatus.check_id.in_([2, 3, 4]),
+                    CheckProductStatus.product_code == product_code,
+                )
+                .all()
+            )
+        )
+        if dq2_status:
+            dq2_response = dq2(input_data)
+            if isinstance(dq2_response, tuple):
+                dq2_data, dq2_status_code = dq2_response
+                # если ошибка, то добавляем указание какая dq не прошла:
+                if dq2_status_code != 200:
+                    dq2_data = dq2_data.get_json()
+                    # dq2_data["type"] = "DQ2 failed"
+                    return jsonify(dq2_data), dq2_status_code
+        # validated_data = dq1_response  # TODO: РЕФАКТОР
+        validated_data = validate_input_data(input_data)
         mdm_response = send_to_mdm(validated_data)  # отправка запроса на mdm
         if not mdm_response:
             return jsonify({"error": "no subjects found with input data"}), 404

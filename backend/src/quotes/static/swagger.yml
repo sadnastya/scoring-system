@@ -56,11 +56,11 @@ paths:
               properties:
                 email:
                   type: string
-                password:
-                  type: string
+                # password:
+                #   type: string
               required:
                 - email
-                - password
+                # - password
       responses:
         '201':
           description: User registered successfully
@@ -361,7 +361,6 @@ paths:
                     type: string
                     example: You do not have permission
 
-
     patch:
       summary: Обновление информации о пользователе
       tags:
@@ -376,42 +375,25 @@ paths:
           schema:
             type: integer
             example: 123
-        - name: new_username
-          required: false
-          in: query
-          description: Новый username
-          schema:
-            type: string
-        - name: password
-          required: false
-          in: query
-          description: Новый пароль
-          schema:
-            type: string
-        - name: first_name
-          required: false
-          in: query
-          description: Новое имя
-          schema:
-            type: string
-        - name: last_name
-          required: false
-          in: query
-          description: Новая фамилия
-          schema:
-            type: string
-        - name: is_blocked
-          required: false
-          in: query
-          description: Статус
-          schema:
-            type: boolean
-        - name: roles
-          required: false
-          in: query
-          description: Обновление ролей
-          schema:
-            type: string
+      requestBody:
+        description: Новый статус проверки.
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_username:
+                  type: string
+                is_blocked:
+                  type: boolean
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                roles:
+                  type: list
+
       responses:
         '200':
           description: Данные обновлены
@@ -1787,9 +1769,14 @@ paths:
                   enum:
                     - On-demand
                     - Scheduled
-                calculation_date:
+                time_period:
                   type: string
-                  format: date-time
+                  description: Time period for report generation
+                  enum:
+                    - lastWeek
+                    - lastMonth
+                    - lastYear
+                  example: lastMonth
       responses:
         '201':
           description: Лог отчетности успешно создан
@@ -1823,6 +1810,31 @@ paths:
                   error:
                     type: string
 
+  /api/monitoring/download/{report_id}:
+    get:
+      summary: Download a report file
+      operationId: downloadReport
+      tags:
+        - Monitoring
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          description: The ID of the report to download
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A CSV file containing the report data
+          content:
+            application/csv:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Report not found
+        '500':
+          description: Internal server error
 
   /api/model_catalog:
     get:
@@ -1943,21 +1955,21 @@ paths:
         '500':
           description: Ошибка на сервере
 
-  /api/model_catalog/{model_id}:
+  /api/model_catalog/{model_name}:
     get:
       tags:
         - ModelCatalog
       security:
         - BearerAuth: []
-      summary: Получить модель по ID
-      description: Возвращает модель по заданному ID.
+      summary: Получить модель по name
+      description: Возвращает модель по заданному name.
       parameters:
         - in: path
-          name: model_id
+          name: model_name
           required: true
           schema:
-            type: integer
-          description: ID модели
+            type: string
+          description: name модели
       responses:
         '200':
           description: Успешный ответ
@@ -1966,8 +1978,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  model_id:
-                    type: integer
                   product_code:
                     type: string
                   model_name:
@@ -1997,15 +2007,15 @@ paths:
         - ModelCatalog
       security:
         - BearerAuth: []
-      summary: Обновить модель по ID
+      summary: Обновить модель по name
       description: Обновляет существующую модель с заданными параметрами.
       parameters:
         - in: path
-          name: model_id
+          name: model_name
           required: true
           schema:
-            type: integer
-          description: ID модели
+            type: string
+          description: name модели
       requestBody:
         content:
           application/json:
@@ -2044,15 +2054,15 @@ paths:
         - ModelCatalog
       security:
         - BearerAuth: []
-      summary: Удалить модель по ID
-      description: Удаляет модель по заданному ID.
+      summary: Удалить модель по name
+      description: Удаляет модель по заданному name.
       parameters:
         - in: path
-          name: model_id
+          name: model_name
           required: true
           schema:
-            type: integer
-          description: ID модели
+            type: string
+          description: name модели
       responses:
         '200':
           description: Модель успешно удалена

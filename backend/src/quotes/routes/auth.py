@@ -29,7 +29,7 @@ load_dotenv()
 def register(cur_user):
     """Регистрация новых пользователей."""
     email = request.json.get("email")
-    password = request.json.get("password")
+    password = request.json.get("password", "password")
     if not email or not password:
         return (
             jsonify(
@@ -78,7 +78,15 @@ def login():
     if check_password_hash(user.password, password):
         user.generate_token()
         db.session.commit()
-        return jsonify({"access_token": user.token}), 200
+        return (
+            jsonify(
+                {
+                    "access_token": user.token,
+                    "roles": [role.name for role in user.roles],
+                }
+            ),
+            200,
+        )
     user.login_attempts += 1
     db.session.commit()
     if user.login_attempts >= 3:
@@ -86,7 +94,7 @@ def login():
         db.session.commit()
         admin_email = os.getenv("ADMIN_EMAIL", "admin@mail.ru")
         msg = Message(
-            "User Account Blockeds",
+            "User Account Blocked",
             sender="no-reply@neoscoring.com",
             recipients=[admin_email],
         )
@@ -102,7 +110,7 @@ def login():
             ),
             403,
         )
-    return jsonify({"error": "Invalid credentials"}), 401
+    return jsonify({"message": "wrong password"})
 
 
 @bp.route("/logout", methods=["POST"])
