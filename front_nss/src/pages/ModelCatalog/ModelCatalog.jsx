@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Grid, Card, CardContent, Typography, Switch, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, TextField, FormControlLabel } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Switch, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, TextField } from "@mui/material";
 import Header from "../../components/Header";
 import api from "../../utils/api";
 
@@ -119,7 +119,7 @@ const ModelCatalog = () => {
 
     React.useEffect(() => {
         getModels();
-    }, []);
+    }, );
 
     return (
         <>
@@ -135,9 +135,9 @@ const ModelCatalog = () => {
                         <Grid item xs={12} sm={6} md={4} key={model.id}>
                             <Card sx={{ backgroundColor: "#2D3748", color: "#fff" }}>
                                 <CardContent>
-                                    <Typography variant="h4">{model.model_name}</Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: 2 }}>
-                                        Продукт
+                                    <Typography variant="h3">{model.model_name}</Typography>
+                                    <Typography variant="h6" color="textSecondary" sx={{ marginBottom: 2 }}>
+                                        {model.product_type}
                                     </Typography>
                                     <Typography variant="h5" sx={{ marginBottom: 2 }}>
                                         {model.status ? "Включена" : "Отключена"}

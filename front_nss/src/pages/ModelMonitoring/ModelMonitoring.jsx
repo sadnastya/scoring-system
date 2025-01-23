@@ -110,7 +110,7 @@ const ModelMonitoring = () => {
             }}
           >
             <MenuItem value="lastMonth">За последний месяц</MenuItem>
-            <MenuItem value="lastWeek">За последнюю неделю</MenuItem>
+            <MenuItem value="lastYear">За последний год</MenuItem>
           </Select>
         </Box>
 
@@ -130,8 +130,8 @@ const ModelMonitoring = () => {
               color: "#fff",
             }}
           >
-            <MenuItem value="osago">ОСАГО</MenuItem>
-            <MenuItem value="life">Страхование жизни</MenuItem>
+            <MenuItem value="OSAGO">ОСАГО</MenuItem>
+            <MenuItem value="LIFE_INSURANCE">Страхование жизни</MenuItem>
           </Select>
         </Box>
 

@@ -14,9 +14,11 @@ import IncidentList from "./pages/Observability/IncidentList";
 import ListQuality from "./pages/Quality/QualityHistory";
 import SignIn from "./pages/UM/SignIn/SignIn";
 import AccountManagement from "./pages/UM/SignUp/SignUp";
+import MonitoringTable from "./pages/ModelMonitoring/ReportList";
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
+
 
 function App() {
   const [theme, colorMode] = useTheme();
@@ -33,7 +35,8 @@ function App() {
     "/manageRoles",
     "/manageUsers",
     "/incidentList",
-    "/qualityHistory"
+    "/qualityHistory",
+    "/reportList"
 
   ];
   const showTopbarOn = [
@@ -46,7 +49,8 @@ function App() {
     "/manageRoles",
     "/manageUsers",
     "/incidentList",
-    "/qualityHistory"
+    "/qualityHistory",
+    "/reportList"
   ];
 
   return (
@@ -80,6 +84,7 @@ function App() {
 
                 <Route path="/dataMart" element={<DataMart />} />
                 <Route path="/incidentList" element={<IncidentList />} />
+                <Route path="/reportList" element={<MonitoringTable />} />
                 
                 </Route>
               </Routes>

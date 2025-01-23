@@ -197,6 +197,12 @@ def handle_quote(user):
                     return jsonify(dq2_data), dq2_status_code
         # validated_data = dq1_response  # TODO: РЕФАКТОР
         validated_data = validate_input_data(input_data)
+        # validated_data = input_data  # По умолчанию input_data
+        # if dq1_status and dq1_response and dq1_response[1] == 200:
+        #     validated_data = dq1_response[0]
+        # if dq2_status and dq2_response and dq2_response[1] == 200:
+        #     validated_data = dq2_response[0]
+
         mdm_response = send_to_mdm(validated_data)  # отправка запроса на mdm
         if not mdm_response:
             return jsonify({"error": "no subjects found with input data"}), 404

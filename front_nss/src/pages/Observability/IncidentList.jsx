@@ -19,7 +19,8 @@ import {
   Switch,
   FormControlLabel,
   MenuItem,
-  Select
+  Select,
+  Typography
 } from "@mui/material";
 import Header from "../../components/Header";
 import api from "../../utils/api";
@@ -50,6 +51,36 @@ const IncidentTable = () => {
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleEditOpen = (incident) => {
+    setEditData(incident);
+    setEditOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditData(null);
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const response = await api.put(`/observability/${editData.id_incident}`, editData);
+      console.log("Инцидент успешно обновлён:", response.data);
+
+      fetchData(); // Обновление данных после редактирования
+      handleEditClose();
+    } catch (error) {
+      console.error("Ошибка при обновлении инцидента:", error);
+    }
+  };
+
 
   const handleSubmit = async () => {
     try {
@@ -82,7 +113,6 @@ const IncidentTable = () => {
     }
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
 
   const handleSort = (property) => {
     const isAscending = orderBy === property && order === "asc";
@@ -98,18 +128,17 @@ const IncidentTable = () => {
       return a[orderBy] < b[orderBy] ? 1 : -1;
     });
   };
-  
+
   const paginateData = (data, page, rowsPerPage) => {
     return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   };
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = data.map((row) => row.id_incident);
-      setSelected(newSelected);
-      return;
+      setSelected([data[0]?.id_incident]); // Выбираем только первый элемент, если список не пуст
+    } else {
+      setSelected([]);
     }
-    setSelected([]);
   };
 
 
@@ -135,25 +164,16 @@ const IncidentTable = () => {
     fetchData();
   }, [page, rowsPerPage]);
 
+
   const handleClick = (id) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
+    if (selected.includes(id)) {
+      setSelected([]); // Снять выбор, если элемент уже выбран
+    } else {
+      setSelected([id]); // Установить только один выбранный элемент
     }
-
-    setSelected(newSelected);
   };
+
+  const isSelected = (id) => selected.includes(id); // Проверка выбора
 
   return (
     <>
@@ -162,10 +182,15 @@ const IncidentTable = () => {
       <Box p={3} sx={{ backgroundColor: "#1e1e2f", minHeight: "100vh", color: "#fff" }}>
         <Box display="flex" justifyContent="space-between" mb={2}>
 
-          <span>Выбрано: {selected.length}</span>
-          <Button variant="contained" color="third">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => handleEditOpen(data.find((row) => row.id_incident === selected[0]))}
+            disabled={selected.length === 0} // Блокируем, если ничего не выбрано
+          >
             Редактировать инцидент
           </Button>
+
 
           <Button variant="contained" color="secondary" onClick={handleOpenDialog}>
             Создать инцидент
@@ -176,16 +201,13 @@ const IncidentTable = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={selected.length > 0 && selected.length < data.length}
-                    checked={selected.length === data.length}
-                    onChange={handleSelectAllClick}
-                  />
+                <TableCell>
+
                 </TableCell>
+
                 <TableCell>
                   <TextField
-                    size="small"
+                    size="medium"
                     variant="outlined"
                     placeholder="ID инцидента"
                     fullWidth
@@ -199,44 +221,58 @@ const IncidentTable = () => {
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                  active={orderBy === "service"}
-                  direction={order}
-                  onClick={() => handleSort("service")}
+                    active={orderBy === "service"}
+                    direction={order}
+                    onClick={() => handleSort("service")}
                   >
-                    Сервис
+                    <Typography variant="h5">
+                      Сервис
+                    </Typography>
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
                   <TableSortLabel
-                  active={orderBy === "state"}
-                  direction={order}
-                  onClick={() => handleSort("state")}>
-                    Состояние инцидента
+                    active={orderBy === "state"}
+                    direction={order}
+                    onClick={() => handleSort("state")}>
+                    <Typography variant="h5">
+                      Статус
+                    </Typography>
+
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>
-                  <TableSortLabel 
-                  active={orderBy === "priority"}
-                  direction={order}
-                  onClick={() => handleSort("priority")}
+                  <TableSortLabel
+                    active={orderBy === "priority"}
+                    direction={order}
+                    onClick={() => handleSort("priority")}
                   >
-                    Приоритет
+                    <Typography variant="h5">
+                      Приоритет
+                    </Typography>
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>Описание инцидента</TableCell>
                 <TableCell>
-                  <TableSortLabel 
-                  active={orderBy === "last_updated"}
-                  direction={order}
-                  onClick={() => handleSort("last_updated")}
+                  <Typography variant="h5">
+                    Описание инцидента
+                  </Typography>
+
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === "last_updated"}
+                    direction={order}
+                    onClick={() => handleSort("last_updated")}
                   >
-                    Дата изменения
+                    <Typography variant="h5">
+                      Дата изменения
+                    </Typography>
                   </TableSortLabel>
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-            {paginateData(sortData(data, order, orderBy), page, rowsPerPage).map((row) => {
+              {paginateData(sortData(data, order, orderBy), page, rowsPerPage).map((row) => {
                 const isItemSelected = isSelected(row.id_incident);
                 return (
                   <TableRow
@@ -342,6 +378,8 @@ const IncidentTable = () => {
           </DialogActions>
         </Box>
       </Dialog>
+
+
     </>
   );
 

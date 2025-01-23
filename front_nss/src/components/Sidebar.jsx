@@ -18,9 +18,7 @@ import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined
 import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
 import LegendToggleOutlinedIcon from '@mui/icons-material/LegendToggleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import HealthAndSafetyOutlinedIcon from '@mui/icons-material/HealthAndSafetyOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
@@ -174,39 +172,6 @@ const Sidebar = () => {
                 setSelected={setSelected}
               />
             </HasAccess>
-
-            <SubMenu
-              icon={<HealthAndSafetyOutlinedIcon />}
-              title="Страхование жизни"
-            >
-              <Item
-                title={
-                  <CustomTitle>
-                    История котировок
-                    <br />
-                    пользователя
-                  </CustomTitle>
-                }
-                to="/quoteLifeMyHistory"
-                icon={<HistoryOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-
-              <Item
-                title={
-                  <CustomTitle>
-                    История всех
-                    <br />
-                    котировок
-                  </CustomTitle>
-                }
-                to="/quoteLifeAllHistory"
-                icon={<CalendarMonthOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </SubMenu>
 
             <SubMenu
               icon={<AssignmentTurnedInOutlinedIcon />}

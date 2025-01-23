@@ -202,7 +202,16 @@ export const themeSettings = (mode) => {
     },
     switch: {
         color: colors.blueAccent[500],
-    }
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          fontSize: '20px', // Устанавливает размер шрифта для всех TableCell
+        },
+      },
+    },
+    
+
   };
 };
 

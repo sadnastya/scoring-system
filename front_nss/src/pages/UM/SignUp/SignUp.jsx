@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import api from "../../../utils/api";
+import moment from 'moment';
 
 const AccountManagement = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +51,7 @@ const AccountManagement = () => {
     const params = new URLSearchParams();
 
     params.append("page", 1);
-    params.append("per_page", 10);
+    params.append("per_page", 50);
     
     const response = await api.get(`/auth/admin/users?${params.toString()}`);
     setAccounts(response.data.users);
@@ -58,7 +59,7 @@ const AccountManagement = () => {
 
   const handleCreateAccount = async () => {
     try {
-      const response = await api.post("/auth/register", { email });
+      const response = await api.post("/auth/register", { email, role });
 
       if (response.status !== 201) {
         throw new Error("Ошибка регистрации пользователя");
@@ -154,9 +155,9 @@ const AccountManagement = () => {
                 onChange={(e) => setRole(e.target.value)}
                 sx={{ backgroundColor: "#434c5e", color: "#eceff4" }}
               >
-                <MenuItem value="Администратор">Администратор</MenuItem>
-                <MenuItem value="Редактор">Редактор</MenuItem>
-                <MenuItem value="Пользователь">Пользователь</MenuItem>
+                <MenuItem value="admin">Администратор</MenuItem>
+                <MenuItem value="editor">Редактор</MenuItem>
+                <MenuItem value="user">Пользователь</MenuItem>
               </Select>
             </FormControl>
             <Button
@@ -230,7 +231,7 @@ const AccountManagement = () => {
                 {sortedAccounts.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell sx={{ color: "#eceff4" }}>{row.email}</TableCell>
-                    <TableCell sx={{ color: "#eceff4" }}>{row.created_at}</TableCell>
+                    <TableCell sx={{ color: "#eceff4" }}>{moment(row.created_at).format('MMMM Do YYYY, HH:mm:ss')}</TableCell>
                     <TableCell sx={{ color: "#eceff4" }}>{row.roles}</TableCell>
                     <TableCell>
                       <Button

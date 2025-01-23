@@ -56,10 +56,13 @@ paths:
               properties:
                 email:
                   type: string
+                role:
+                  type: string
                 # password:
                 #   type: string
               required:
                 - email
+                - role
                 # - password
       responses:
         '201':
@@ -684,7 +687,7 @@ paths:
 
   /api/dq:
     get:
-      summary: Получение списка всех проверок
+      summary: Получение истории всех проверок
       description: Возвращает список проверок с возможностью фильтрации по типу проверки, продукту и дате.
       tags:
         - DataQuality
@@ -803,7 +806,7 @@ paths:
       security:
         - BearerAuth: []
     patch:
-      summary: Изменение статуса проверки
+      summary: Изменение статуса проверки в истории
       description: Изменяет статус проверки с указанным `check_id`.
       tags:
         - DataQuality
@@ -843,7 +846,7 @@ paths:
         - DataQuality
       security:
         - BearerAuth: []
-      summary: Manage check statuses
+      summary: Включение/отключение проверок для продуктов
       description: Включает или отключает проверки для заданного типа продукта и проверки.
       requestBody:
         required: true
@@ -1135,7 +1138,7 @@ paths:
                   error:
                     type: string
 
-  /api/export:
+  /api/dwh/export:
     post:
       tags:
         - DWH
@@ -1560,6 +1563,57 @@ paths:
                 properties:
                   error:
                     type: string
+    delete:
+      tags:
+        - Observability
+      security:
+        - BearerAuth: []
+      summary: Удалить инцидент
+      description: Удаляет инцидент по указанному идентификатору.
+      parameters:
+        - name: id_incident
+          in: path
+          required: true
+          description: Уникальный идентификатор инцидента
+          schema:
+            type: integer
+            example: 42
+      responses:
+        '200':
+          description: Инцидент успешно удален
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Уведомление об успешном удалении
+                    example: Incident deleted successfully
+        '404':
+          description: Инцидент не найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Описание ошибки
+                    example: Incident not found
+        '500':
+          description: Ошибка сервера при выполнении запроса
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Описание ошибки
+                    example: Database connection failed
+
+
   /api/monitoring:
     get:
       tags:
@@ -1676,9 +1730,9 @@ paths:
                   type: string
                 monitoring_type:
                   type: string
-                calculation_date:
-                  type: string
-                  format: date-time
+                # calculation_date:
+                #   type: string
+                #   format: date-time
                 page:
                   type: integer
                   default: 1
@@ -1744,9 +1798,9 @@ paths:
         - Monitoring
       security:
         - BearerAuth: []
-      summary: Создание нового лога отчетности
-      description: Создает новый лог отчетности для заданной модели и метрики
-      operationId: createReportLog
+      summary: Создание новогого отчета
+      description: Создает новый отчет для заданной модели и метрики
+      operationId: createReport
       requestBody:
         content:
           application/json:
@@ -1816,6 +1870,8 @@ paths:
       operationId: downloadReport
       tags:
         - Monitoring
+      security:
+        - BearerAuth: []
       parameters:
         - name: report_id
           in: path
@@ -2080,6 +2136,53 @@ paths:
         '500':
           description: Ошибка на сервере
 
+
+
+  /api/dq/checks:
+    get:
+      summary: Получить список проверок
+      description: Возвращает список проверок с их типами, кодами продуктов и условиями.
+      tags:
+        - DataQuality
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Успешный ответ с данными проверок
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: Уникальный идентификатор проверки.
+                      example: 3
+                    type:
+                      type: string
+                      description: Тип проверки
+                      example: DQ1
+                    product_code:
+                      type: string
+                      description: Код продукта.
+                      example: prod001
+                    condition:
+                      type: boolean
+                      description: Статус проверки
+                      example: true
+        '500':
+          description: Ошибка сервера при выполнении запроса
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Описание ошибки.
+                    example: Database connection failed
 
 components:
   securitySchemes:

@@ -1,15 +1,14 @@
 import axios from "axios";
+import { createBrowserHistory } from "history";
 
-import { useNavigate } from 'react-router-dom';
+const history = createBrowserHistory();
 
 const api = axios.create({
-  baseURL: "http://90.156.156.3:5000/api",
+  baseURL: "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
-
-
 
 api.interceptors.request.use(
   (config) => {
@@ -22,25 +21,24 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Добавьте обработку ошибок
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (!error.response) {
+      console.error("Ошибка сети. Проверьте подключение к интернету.");
+    } else if (error.response.status === 401) {
       console.error("Ошибка авторизации: Токен истёк или недействителен.");
-      const navigate = useNavigate();
 
-      // Удаляем токен из локального хранилища
       localStorage.removeItem("token");
 
-      // Перенаправляем пользователя на страницу авторизации
-      navigate("/signin");
-      window.location.reload(); // Перезагрузка страницы для корректного редиректа
+      
+      history.push("/signin");
+      window.location.reload();
     }
 
-    return Promise.reject(error); // Пропускаем ошибку дальше
+    return Promise.reject(error);
   }
 );
 
+export { history };
 export default api;
-

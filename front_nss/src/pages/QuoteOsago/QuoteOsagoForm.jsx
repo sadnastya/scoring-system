@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Button, Box, Select, MenuItem, InputLabel, FormControl, Modal, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { TextField, Button, Box, Select, MenuItem, InputLabel, FormControl, Modal, Typography } from '@mui/material';
 
 import { Formik, Form, FieldArray, Field } from 'formik';
 import * as Yup from 'yup';
@@ -13,7 +13,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 600,
-  height: 150,
+  height: 230,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -33,26 +33,26 @@ const initialValues = {
     },
     subjects: [
       {
-        firstName: '',
-        secondName: '',
-        middleName: '',
-        birthDate: '',
-        gender: '',
+        firstName: 'John',
+        secondName: 'Doe',
+        middleName: 'Middle',
+        birthDate: '1990-01-01',
+        gender: 'Male',
         addresses: [
           {
-            country: '',
-            region: '',
-            city: '',
-            street: '',
-            houseNumber: '',
+            country: 'Russia',
+            region: 'Moscow',
+            city: 'Moscow',
+            street: 'Zelenaya',
+            houseNumber: '4',
             apartmentNumber: '',
           },
         ],
         documents: [
           {
             documentType: 'passport',
-            documentNumber: '',
-            issueDate: '',
+            documentNumber: '123456789',
+            issueDate: '2010-05-20',
           },
         ],
       },
@@ -146,10 +146,10 @@ const Page = () => {
         onClose={handleClose}
       >
         <Box sx={style} display={"grid"}>
-          <Typography variant="h6" component="h2">
+          <Typography variant="h4" component="h2">
             Предсказание
           </Typography>
-          <Typography  sx={{ mt: 2 }}>
+          <Typography  variant='h5'>
             <p>Predict Percent: {data.predict.percent}</p>
             <p>Predict Score: {data.predict.score}</p>
 

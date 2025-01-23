@@ -26,6 +26,43 @@ const QualityControl = () => {
     1: [false, false, false],
   });
 
+  const getChecks = async () => {
+    try {
+      const params = new URLSearchParams();
+      params.append("page", 1);
+      params.append("per_page", 10);
+      const response = await api.get(`/dq/checks`);
+      const data = response.data;
+
+      console.log(data);
+  
+      
+      const osagoSwitches = { 0: [false], 1: [false, false, false] };
+      const lifeSwitches = { 0: [false], 1: [false, false, false] };
+  
+      
+      data.forEach((item) => {
+        const groupIndex = item.type === "DQ1" ? 0 : 1;
+        const checkIndex = groupIndex === 0 ? 0 : item.id - 2;
+        console.log(groupIndex, checkIndex);
+  
+        if (item.product_code === "prod001") {
+          osagoSwitches[groupIndex][checkIndex] = item.condition;
+          console.log(osagoSwitches);
+        } else if (item.product_code === "prod002") {
+          lifeSwitches[groupIndex][checkIndex] = item.condition;
+        }
+      });
+  
+      
+      setGroupOsagoSwitches(osagoSwitches);
+      setGroupLifeSwitches(lifeSwitches);
+    } catch (error) {
+      console.error("Ошибка при загрузке данных:", error);
+    }
+  };
+  
+
   const updateDQCheck = async (checkType, productType, condition) => {
     try {
       await api.put(`/dq/manage`, {
@@ -72,7 +109,7 @@ const QualityControl = () => {
     },
     {
       title: 'ПРОВЕРКИ DQ 2',
-      checks: ['проверка 2.1', 'проверка 2.2', 'проверка 2.3'],
+      checks: ['DQ 2.1: тип продукта', 'DQ 2.2:  проверка клиента(возраст, пол)', 'DQ 2.3: тип документа'],
     },
   ];
 
@@ -102,6 +139,10 @@ const QualityControl = () => {
       backgroundColor: '#acaed1',
     }
   };
+
+  React.useEffect(() => {
+    getChecks();
+  }, []);
 
   return (
     <Box sx={{ width: '70%', marginLeft: 'auto', marginRight: 'auto', marginTop: 4 }}>

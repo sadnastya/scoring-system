@@ -18,7 +18,7 @@ const SignInForm = () => {
   const navigate = useNavigate();
 
   const handleFormSubmit = (values) => {
-    const address = 'http://90.156.156.3:5000/api/auth/login';
+    const address = 'http://localhost:5000/api/auth/login';
     const params = {
       method: 'POST',
       headers: {
@@ -30,7 +30,7 @@ const SignInForm = () => {
     fetch(address, params)
     .then(response => {
       if (response.ok) {
-        return response.json(); // Разбираем JSON, если статус ответа успешный
+        return response.json();
       } else if (response.status === 500) {
         throw new Error("Сервер недоступен");
       } else {

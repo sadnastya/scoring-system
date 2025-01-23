@@ -12,27 +12,38 @@ import {
   TableSortLabel,
   TablePagination,
   Button,
+  IconButton,
+  Popover,
+  TextField,
+  MenuItem,
+  Typography,
 } from "@mui/material";
-
-const data = [
-  { id: 673, product: "ОСАГО", status: "не пройдена", date: "10.12.2024 12:46:54" },
-  { id: 672, product: "Страхование жизни", status: "не пройдена", date: "10.12.2024 11:56:01" },
-  { id: 671, product: "ОСАГО", status: "не пройдена", date: "09.12.2024 8:12:28" },
-  { id: 670, product: "Страхование жизни", status: "пройдена", date: "08.12.2024 05:46:20" },
-  { id: 669, product: "ОСАГО", status: "пройдена", date: "07.12.2024 23:32:10" },
-  { id: 668, product: "Страхование жизни", status: "не пройдена", date: "07.12.2024 15:57:13" },
-  { id: 667, product: "Страхование жизни", status: "пройдена", date: "07.12.2024 12:46:54" },
-  { id: 666, product: "ОСАГО", status: "пройдена", date: "06.12.2024 09:04:01" },
-  { id: 665, product: "ОСАГО", status: "не пройдена", date: "06.12.2024 07:07:07" },
-  { id: 664, product: "Страхование жизни", status: "пройдена", date: "06.12.2024 06:06:00" },
-];
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import api from "../../utils/api";
+import moment from 'moment';
 
 const ListQuality = () => {
+  const [rows, setData] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
   const [selected, setSelected] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("id");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [filterAnchor, setFilterAnchor] = useState(null);
+  const [filters, setFilters] = useState({
+    product_type: "",
+    status: "",
+    startDate: "",
+    endDate: "",
+  });
+
+  const fetchData = async () => {
+    const response = await api.get("/dq/");
+    setData(response.data);
+    setFilteredRows(response.data);
+  };
 
   const handleSort = (property) => {
     const isAscending = orderBy === property && order === "asc";
@@ -42,7 +53,7 @@ const ListQuality = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = data.map((row) => row.id);
+      const newSelected = rows.map((row) => row.id);
       setSelected(newSelected);
       return;
     }
@@ -80,25 +91,137 @@ const ListQuality = () => {
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
 
-  const sortedData = [...data].sort((a, b) => {
-    if (order === "asc") {
-      return a[orderBy] > b[orderBy] ? 1 : -1;
-    }
-    return a[orderBy] < b[orderBy] ? 1 : -1;
-  });
+  const sortData = (data, order, orderBy) => {
+    return [...data].sort((a, b) => {
+      if (order === "asc") {
+        return a[orderBy] > b[orderBy] ? 1 : -1;
+      }
+      return a[orderBy] < b[orderBy] ? 1 : -1;
+    });
+  };
 
-  const paginatedData = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginateData = (data, page, rowsPerPage) => {
+    return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  };
+
+  const applyFilters = () => {
+    const filtered = rows.filter((row) => {
+      const matchesProductType = filters.product_type
+        ? row.product_type === filters.product_type
+        : true;
+      const matchesStatus = filters.status
+        ? (filters.status === "passed" && row.status) ||
+        (filters.status === "failed" && !row.status)
+        : true;
+      const matchesDate =
+        (!filters.startDate || new Date(row.date) >= new Date(filters.startDate)) &&
+        (!filters.endDate || new Date(row.date) <= new Date(filters.endDate));
+      return matchesProductType && matchesStatus && matchesDate;
+    });
+
+    setFilteredRows(filtered);
+    setFilterAnchor(null); // Закрыть поповер после применения фильтров
+  };
+
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Box p={3} bgcolor="#1E1E2E" color="white">
-      <Box display="flex" justifyContent="space-between" mb={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <span>Выбрано: {selected.length}</span>
-        <Button variant="contained" color="secondary" onClick={() => setSelected([])}>
-          Снять выделение
-        </Button>
+        <Box display="flex" alignItems="center">
+          <IconButton
+            onClick={(event) => setFilterAnchor(event.currentTarget)}
+            color="secondary"
+          >
+            <FilterAltOutlinedIcon fontSize="large" />
+          </IconButton>
+          <Popover
+            open={Boolean(filterAnchor)}
+            anchorEl={filterAnchor}
+            onClose={() => setFilterAnchor(null)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+          >
+            <Box p={2} width="300px">
+              <Typography variant="h6" gutterBottom>
+                Фильтрация
+              </Typography>
+              <TextField
+                fullWidth
+                label="Дата начала"
+                type="date"
+                value={filters.startDate}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, startDate: e.target.value }))
+                }
+                margin="normal"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                fullWidth
+                label="Дата окончания"
+                type="date"
+                value={filters.endDate}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, endDate: e.target.value }))
+                }
+                margin="normal"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+              <TextField
+                fullWidth
+                select
+                label="Вид страхового продукта"
+                value={filters.product_type}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, product_type: e.target.value }))
+                }
+                margin="normal"
+              >
+                <MenuItem value="">Все</MenuItem>
+                <MenuItem value="osago">ОСАГО</MenuItem>
+                <MenuItem value="life">СТРАХОВАНИЕ ЖИЗНИ</MenuItem>
+              </TextField>
+              <TextField
+                fullWidth
+                select
+                label="Статус проверки"
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, status: e.target.value }))
+                }
+                margin="normal"
+              >
+                <MenuItem value="">Все</MenuItem>
+                <MenuItem value="passed">Пройдено</MenuItem>
+                <MenuItem value="failed">Не пройдено</MenuItem>
+              </TextField>
+
+              <Box display="flex" justifyContent="space-between" mt={2}>
+                <Button variant="outlined" onClick={() => setFilters({
+                  product_type: "",
+                  status: "",
+                  startDate: "",
+                  endDate: "",
+                })}>
+                  Сбросить
+                </Button>
+                <Button variant="contained" onClick={applyFilters}>
+                  Применить
+                </Button>
+              </Box>
+            </Box>
+          </Popover>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
         <Table>
@@ -106,8 +229,8 @@ const ListQuality = () => {
             <TableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={selected.length > 0 && selected.length < data.length}
-                  checked={selected.length === data.length}
+                  indeterminate={selected.length > 0 && selected.length < filteredRows.length}
+                  checked={selected.length === filteredRows.length}
                   onChange={handleSelectAllClick}
                 />
               </TableCell>
@@ -116,15 +239,17 @@ const ListQuality = () => {
                   active={orderBy === "id"}
                   direction={order}
                   onClick={() => handleSort("id")}
+                  style={{ fontSize: '20px' }}
                 >
                   № проверки
                 </TableSortLabel>
               </TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === "product"}
+                  active={orderBy === "product_type"}
                   direction={order}
-                  onClick={() => handleSort("product")}
+                  onClick={() => handleSort("product_type")}
+                  style={{ fontSize: '20px' }}
                 >
                   Вид продукта
                 </TableSortLabel>
@@ -134,6 +259,7 @@ const ListQuality = () => {
                   active={orderBy === "status"}
                   direction={order}
                   onClick={() => handleSort("status")}
+                  style={{ fontSize: '20px' }}
                 >
                   Статус проверки
                 </TableSortLabel>
@@ -143,6 +269,7 @@ const ListQuality = () => {
                   active={orderBy === "date"}
                   direction={order}
                   onClick={() => handleSort("date")}
+                  style={{ fontSize: '20px' }}
                 >
                   Дата
                 </TableSortLabel>
@@ -150,7 +277,7 @@ const ListQuality = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedData.map((row) => {
+            {paginateData(sortData(filteredRows, order, orderBy), page, rowsPerPage).map((row) => {
               const isItemSelected = isSelected(row.id);
               return (
                 <TableRow
@@ -158,15 +285,18 @@ const ListQuality = () => {
                   onClick={() => handleClick(row.id)}
                   role="checkbox"
                   selected={isItemSelected}
+                  
                   hover
                 >
-                  <TableCell padding="checkbox">
+                  <TableCell padding="checkbox" >
                     <Checkbox checked={isItemSelected} />
                   </TableCell>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.product}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.date}</TableCell>
+                  <TableCell style={{ fontSize: '20px' }}>{row.id}</TableCell>
+                  <TableCell style={{ fontSize: '20px' }}>{row.product_type}</TableCell>
+                  <TableCell style={{ fontSize: '20px' }}>{row.status ? "Пройдено" : "Не пройдено"}</TableCell>
+                  <TableCell style={{ fontSize: '20px' }}>
+                    {moment(row.date).format('MMMM Do YYYY, HH:mm:ss')}
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -176,7 +306,7 @@ const ListQuality = () => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 15]}
         component="div"
-        count={data.length}
+        count={filteredRows.length ?? 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
