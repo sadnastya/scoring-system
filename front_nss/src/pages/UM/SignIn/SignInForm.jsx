@@ -18,7 +18,7 @@ const SignInForm = () => {
   const navigate = useNavigate();
 
   const handleFormSubmit = (values) => {
-    const address = 'http://localhost:5000/api/auth/login';
+    const address = 'http://90.156.156.3:5000/api/auth/login';
     const params = {
       method: 'POST',
       headers: {

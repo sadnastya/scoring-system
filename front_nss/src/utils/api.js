@@ -4,7 +4,7 @@ import { createBrowserHistory } from "history";
 const history = createBrowserHistory();
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://90.156.156.3:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
