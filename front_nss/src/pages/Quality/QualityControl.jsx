@@ -125,6 +125,9 @@ const QualityControl = () => {
       '&.Mui-checked': {
         transform: 'translateX(40px)',
         color: '#7e6fd3',
+        '& + .MuiSwitch-track': {
+          backgroundColor: '#7e6fd3',
+        },
       },
     },
     '& .MuiSwitch-thumb': {
@@ -135,9 +138,8 @@ const QualityControl = () => {
       borderRadius: 15,
       backgroundColor: '#acaed1',
     },
-    '& .Mui-checked + .MuiSwitch-track': {
-      backgroundColor: '#acaed1',
-    }
+
+    
   };
 
   React.useEffect(() => {

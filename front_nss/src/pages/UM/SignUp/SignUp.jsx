@@ -110,17 +110,18 @@ const AccountManagement = () => {
     }, []);
 
   return (
-    <Box sx={{ p: 3, backgroundColor: "#2e3440", minHeight: "100vh", color: "#fff" }}>
+    <Box sx={{ p: 3, backgroundColor: "primary", minHeight: "100vh", color: "#fff" }}>
       <Tabs
         value={tab}
         onChange={(e, newValue) => setTab(newValue)}
-        sx={{ mb: 3, backgroundColor: "#4c566a", borderRadius: 1 }}
-        TabIndicatorProps={{
-          style: { backgroundColor: "#88c0d0" },
-        }}
+        textColor="secondary"
+        sx={{ mb: 3, backgroundColor: "#3b4252", borderRadius: 1 }}
+        indicatorColor="secondary"
+        variant="fullWidth"
+        centered
       >
         <Tab label="Управление учётными записями" sx={{ color: "#eceff4" }} />
-        <Tab label="Управление ролями и доступом" sx={{ color: "#eceff4" }} />
+        <Tab label="Управление ролями и доступом" sx={{ color: "#eceff4" }} href="/manageRoles"/>
       </Tabs>
 
       {tab === 0 && (
@@ -136,13 +137,13 @@ const AccountManagement = () => {
               borderRadius: 1,
             }}
           >
-            <h3>Новая учётная запись</h3>
+            <Typography variant="h3" sx={{ mb: 2 }}>Новая учётная запись</Typography>
             <TextField
               label="Введите электронную почту пользователя"
               variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              fullWidth
+              sx={{ width: "50%" }}
               InputLabelProps={{ style: { color: "#d8dee9" } }}
               InputProps={{
                 style: { color: "#eceff4", backgroundColor: "#434c5e" },
@@ -153,7 +154,7 @@ const AccountManagement = () => {
               <Select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                sx={{ backgroundColor: "#434c5e", color: "#eceff4" }}
+                sx={{ backgroundColor: "#434c5e", color: "#eceff4", width: "50%" }}
               >
                 <MenuItem value="admin">Администратор</MenuItem>
                 <MenuItem value="editor">Редактор</MenuItem>
@@ -163,8 +164,10 @@ const AccountManagement = () => {
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "third",
-                color: "#eceff4",
+                backgroundColor: "secondary.main",
+                color: "primary.main",
+                borderRadius: 3,
+                width: "40%",
               }}
               onClick={handleCreateAccount}
             >
@@ -190,11 +193,11 @@ const AccountManagement = () => {
             </IconButton>
           </Box>
 
-          <TableContainer component={Paper} sx={{ backgroundColor: "#3b4252" }}>
+          <TableContainer component={Paper} sx={{ backgroundColor: "#141b2d" }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: "#d8dee9" }}>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px" }}>
                     <TableSortLabel
                       active={orderBy === "account"}
                       direction={order}
@@ -204,7 +207,7 @@ const AccountManagement = () => {
                       Учётная запись
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: "#d8dee9" }}>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px" }}>
                     <TableSortLabel
                       active={orderBy === "date"}
                       direction={order}
@@ -214,7 +217,7 @@ const AccountManagement = () => {
                       Дата создания
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: "#d8dee9" }}>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px" }}>
                     <TableSortLabel
                       active={orderBy === "role"}
                       direction={order}
@@ -224,16 +227,16 @@ const AccountManagement = () => {
                       Роль
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: "#d8dee9" }}>Действия</TableCell>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px" }}>Действия</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {sortedAccounts.map((row, index) => (
                   <TableRow key={index}>
-                    <TableCell sx={{ color: "#eceff4" }}>{row.email}</TableCell>
-                    <TableCell sx={{ color: "#eceff4" }}>{moment(row.created_at).format('MMMM Do YYYY, HH:mm:ss')}</TableCell>
-                    <TableCell sx={{ color: "#eceff4" }}>{row.roles}</TableCell>
-                    <TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.email}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{moment(row.created_at).format('MMMM Do YYYY, HH:mm:ss')}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.roles}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px", fontFamily: "Source Code Pro, sans-serif" }}>
                       <Button
                         variant="text"
                         sx={{ color: "#88c0d0", ":hover": { color: "#81a1c1" } }}

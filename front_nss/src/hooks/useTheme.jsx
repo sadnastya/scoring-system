@@ -200,9 +200,6 @@ export const themeSettings = (mode) => {
         fontSize: 14,
       },
     },
-    switch: {
-        color: colors.blueAccent[500],
-    },
     MuiTableCell: {
       styleOverrides: {
         root: {

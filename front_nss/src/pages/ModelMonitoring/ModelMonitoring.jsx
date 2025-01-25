@@ -32,13 +32,12 @@ const ModelMonitoring = () => {
       const response = await api.post(`/monitoring/create`, dataToSend);
       if (response.status === 201) {
         const fileResponse = await api.get(`/monitoring/download/${response.data.id}`, {
-          responseType: "blob", // Получаем файл в формате blob
+          responseType: "blob",
         });
 
-        // Создаём URL для файла
         const url = window.URL.createObjectURL(new Blob([fileResponse.data]));
-        setFileUrl(url); // Сохраняем URL для дальнейшего использования
-        setOpenDialog(true); // Открываем диалог
+        setFileUrl(url);
+        setOpenDialog(true);
       }
     } catch (error) {
       console.error("Ошибка при загрузке данных:", error);
@@ -48,16 +47,16 @@ const ModelMonitoring = () => {
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = fileUrl;
-    link.setAttribute("download", "report.csv"); // Имя скачиваемого файла
+    link.setAttribute("download", "report.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setOpenDialog(false); // Закрываем диалог
+    setOpenDialog(false);
   };
 
   const handleView = () => {
-    window.open(fileUrl, "_blank"); // Открываем файл в новой вкладке
-    setOpenDialog(false); // Закрываем диалог
+    window.open(fileUrl, "_blank");
+    setOpenDialog(false);
   };
 
   const formik = useFormik({
@@ -110,6 +109,7 @@ const ModelMonitoring = () => {
             }}
           >
             <MenuItem value="lastMonth">За последний месяц</MenuItem>
+            <MenuItem value="last3Months">За последний квартал</MenuItem>
             <MenuItem value="lastYear">За последний год</MenuItem>
           </Select>
         </Box>

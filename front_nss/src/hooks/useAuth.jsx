@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
           console.log("Logout successful");
           localStorage.removeItem("token");
           setToken(null);
+          localStorage.removeItem("__permifyUser");
         } else {
           console.log("Logout failed with status:", response.status);
         }
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      navigate("/signin"); // Перенаправляем на страницу входа в любом случае
+      navigate("/signin");
     }
   };
 

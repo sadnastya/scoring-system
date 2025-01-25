@@ -133,14 +133,6 @@ const IncidentTable = () => {
     return data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      setSelected([data[0]?.id_incident]); // Выбираем только первый элемент, если список не пуст
-    } else {
-      setSelected([]);
-    }
-  };
-
 
   const fetchData = async () => {
     try {
@@ -179,14 +171,14 @@ const IncidentTable = () => {
     <>
       <Header title="Список инцидентов" />
 
-      <Box p={3} sx={{ backgroundColor: "#1e1e2f", minHeight: "100vh", color: "#fff" }}>
+      <Box p={3} sx={{ backgroundColor: "#141b2d", minHeight: "100vh", color: "#fff" }}>
         <Box display="flex" justifyContent="space-between" mb={2}>
 
           <Button
             variant="contained"
             color="secondary"
             onClick={() => handleEditOpen(data.find((row) => row.id_incident === selected[0]))}
-            disabled={selected.length === 0} // Блокируем, если ничего не выбрано
+            disabled={selected.length === 0}
           >
             Редактировать инцидент
           </Button>
@@ -197,15 +189,15 @@ const IncidentTable = () => {
           </Button>
         </Box>
 
-        <TableContainer component={Paper} sx={{ backgroundColor: "#2b2b3d" }}>
+        <TableContainer component={Paper} sx={{ backgroundColor: "#141b2d" }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
 
                 </TableCell>
 
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                   <TextField
                     size="medium"
                     variant="outlined"
@@ -219,52 +211,50 @@ const IncidentTable = () => {
                     }}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                   <TableSortLabel
                     active={orderBy === "service"}
                     direction={order}
                     onClick={() => handleSort("service")}
                   >
-                    <Typography variant="h5">
+                    <Typography variant="h5" fontSize={20}>
                       Сервис
                     </Typography>
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                   <TableSortLabel
                     active={orderBy === "state"}
                     direction={order}
                     onClick={() => handleSort("state")}>
-                    <Typography variant="h5">
-                      Статус
-                    </Typography>
+                    <Typography variant="h5" fontSize={20}>Статус</Typography>
 
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                   <TableSortLabel
                     active={orderBy === "priority"}
                     direction={order}
                     onClick={() => handleSort("priority")}
                   >
-                    <Typography variant="h5">
+                    <Typography variant="h5" fontSize={20}>
                       Приоритет
                     </Typography>
                   </TableSortLabel>
                 </TableCell>
-                <TableCell>
-                  <Typography variant="h5">
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
+                  <Typography variant="h5" fontSize={20}>
                     Описание инцидента
                   </Typography>
 
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                   <TableSortLabel
                     active={orderBy === "last_updated"}
                     direction={order}
                     onClick={() => handleSort("last_updated")}
                   >
-                    <Typography variant="h5">
+                    <Typography variant="h5" fontSize={20}>
                       Дата изменения
                     </Typography>
                   </TableSortLabel>
@@ -282,15 +272,15 @@ const IncidentTable = () => {
                     selected={isItemSelected}
                     hover
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox checked={isItemSelected} />
+                    <TableCell padding="checkbox" sx={{ border: "1px solid #ddd", textAlign: "center" }}>
+                      <Checkbox sx={{ color: "#fff", "&.Mui-checked": { color: "third.main" } }} checked={isItemSelected} />
                     </TableCell>
-                    <TableCell>{row.id_incident}</TableCell>
-                    <TableCell>{row.service}</TableCell>
-                    <TableCell>{row.state}</TableCell>
-                    <TableCell>{row.priority}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell>{row.last_updated}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.id_incident}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.service}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.state}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.priority}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.description}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "16px", fontFamily: "Source Code Pro, sans-serif" }}>{row.last_updated}</TableCell>
                   </TableRow>
 
                 );
@@ -304,7 +294,7 @@ const IncidentTable = () => {
 
       {/* Модальное окно */}
       <Dialog open={open} onClose={handleCloseDialog} fullWidth maxWidth="sm" bgcolor="#1e1e2f">
-        <DialogTitle>Создание инцидента</DialogTitle>
+        <DialogTitle><Typography variant="h3">Создание инцидента</Typography></DialogTitle>
         <DialogContent>
           <Box display="grid" gap={2}>
             <Box display="flex">
@@ -316,11 +306,13 @@ const IncidentTable = () => {
                 value={formData.service}
                 onChange={(e) => handleChange("service", e.target.value)}
               >
-                <MenuItem value="User Management">User Management</MenuItem>
-                <MenuItem value="Model Monitoring">Model Monitoring</MenuItem>
-                <MenuItem value="Proxy service">Proxy service</MenuItem>
-                <MenuItem value="DWH service">DWH service</MenuItem>
-                <MenuItem value="DQ service">DQ service</MenuItem>
+                <MenuItem value="AUTH service">AUTH сервис</MenuItem>
+                <MenuItem value="Model Service">Мониторинг моделей</MenuItem>
+                <MenuItem value="Proxy service">Proxy сервис</MenuItem>
+                <MenuItem value="DWH service">DWH сервис</MenuItem>
+                <MenuItem value="DQ service">DQ сервис</MenuItem>
+                <MenuItem value="UI service">UI сервис</MenuItem>
+                <MenuItem value="Model Catalog service">Каталог моделей</MenuItem>
               </Select>
             </Box>
             <Box display="flex">
@@ -374,6 +366,93 @@ const IncidentTable = () => {
             </Button>
             <Button onClick={handleSubmit} color="secondary" variant="contained">
               Сохранить инцидент
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+
+
+      {/* Модальное окно */}
+      <Dialog open={editOpen} onClose={handleEditClose} fullWidth maxWidth="sm" bgcolor="#1e1e2f">
+        <DialogTitle><Typography variant="h3">Редактирование инцидента</Typography></DialogTitle>
+        <DialogContent>
+          <Box display="grid" gap={2}>
+            <Box display="flex">
+              <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                Сервис
+              </Box>
+              <Select
+                fullWidth
+                value={editData?.service || ""}
+                onChange={(e) => handleEditChange("service", e.target.value)}
+              >
+                <MenuItem value="AUTH service">AUTH сервис</MenuItem>
+                <MenuItem value="Model Service">Мониторинг моделей</MenuItem>
+                <MenuItem value="Proxy service">Proxy сервис</MenuItem>
+                <MenuItem value="DWH service">DWH сервис</MenuItem>
+                <MenuItem value="DQ service">DQ сервис</MenuItem>
+                <MenuItem value="UI service">UI сервис</MenuItem>
+                <MenuItem value="Model Catalog service">Каталог моделей</MenuItem>
+              </Select>
+            </Box>
+            <Box display="flex">
+              <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                Приоритет
+              </Box>
+              <Select
+                fullWidth
+                value={editData?.priority || ""}
+                onChange={(e) => handleEditChange("priority", e.target.value)}
+              >
+                <MenuItem value="High">Высокий</MenuItem>
+                <MenuItem value="Medium">Средний</MenuItem>
+                <MenuItem value="Low">Низкий</MenuItem>
+              </Select>
+            </Box>
+            <Box display="flex">
+              <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                Статус
+              </Box>
+              <Select
+                fullWidth
+                value={editData?.state || ""}
+                onChange={(e) => handleEditChange("state", e.target.value)}
+              >
+                <MenuItem value="In Progress">В процессе</MenuItem>
+                <MenuItem value="Active">Активный</MenuItem>
+                <MenuItem value="Resolved">Решенный</MenuItem>
+              </Select>
+            </Box>
+
+            <Box display="flex">
+              <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                Описание события
+              </Box>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                value={editData?.description || ""}
+                onChange={(e) => handleEditChange("description", e.target.value)}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          px={3}
+          py={1}
+          bgcolor="#2b2b3d"
+        >
+
+          <DialogActions>
+            <Button onClick={handleEditClose} color="third">
+              Отмена
+            </Button>
+            <Button onClick={handleEditSubmit} color="secondary" variant="contained">
+              Сохранить изменения
             </Button>
           </DialogActions>
         </Box>

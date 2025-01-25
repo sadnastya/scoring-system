@@ -20,7 +20,6 @@ import LegendToggleOutlinedIcon from '@mui/icons-material/LegendToggleOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import LockPersonOutlinedIcon from '@mui/icons-material/LockPersonOutlined';
 import AddchartOutlinedIcon from '@mui/icons-material/AddchartOutlined';
@@ -29,6 +28,7 @@ import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
+import SettingsSuggestOutlinedIcon from '@mui/icons-material/SettingsSuggestOutlined';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -106,6 +106,7 @@ const Sidebar = () => {
         style={{
           width: isCollapsed ? "60px" : "290px",
           transition: "width 0.3s",
+          height: "125vh",
         }}>
         <Menu iconShape="square">
           {/* LOGO AND MENU ICON */}
@@ -162,7 +163,7 @@ const Sidebar = () => {
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
 
             <HasAccess
-              roles={["manager"]}
+              roles={["admin", "editor", "user"]}
             >
               <Item
                 title="Получить скоринг"
@@ -179,7 +180,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             >
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "editor"]}>
 
                 <Item
                   title={
@@ -198,7 +199,7 @@ const Sidebar = () => {
               </HasAccess>
 
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "user", "editor"]}>
 
                 <Item
                   title="История проверок"
@@ -209,7 +210,7 @@ const Sidebar = () => {
                 />
               </HasAccess>
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "editor"]}>
 
                 <Item
                   title={
@@ -227,7 +228,7 @@ const Sidebar = () => {
 
               </HasAccess>
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "editor"]}>
 
                 <Item
                   title="Аналитика запросов"
@@ -246,7 +247,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             >
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "user", "editor"]}>
                 <Item
                   title="Настройки"
                   to="/dataMartSettings"
@@ -257,7 +258,7 @@ const Sidebar = () => {
 
               </HasAccess>
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "user", "editor"]}>
 
                 <Item
                   title="Витрина"
@@ -271,7 +272,7 @@ const Sidebar = () => {
 
             </SubMenu>
 
-            <HasAccess roles={["manager"]}>
+            <HasAccess roles={["admin", "editor"]}>
 
               <Item
                 title="Каталог моделей"
@@ -290,7 +291,7 @@ const Sidebar = () => {
               icon={<LegendToggleOutlinedIcon />}
 
             >
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "editor"]}>
                 <Item
                   title="Создать отчет"
                   to="/createReport"
@@ -300,7 +301,7 @@ const Sidebar = () => {
                 />
               </HasAccess>
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "user", "editor"]}>
                 <Item
                   title="Журнал отчётов"
                   to="/reportList"
@@ -316,17 +317,7 @@ const Sidebar = () => {
               icon={<RemoveRedEyeOutlinedIcon />}
               title="Наблюдаемость"
             >
-              <HasAccess roles={["manager"]}>
-                <Item
-                  title="Дашборд"
-                  to="/dashboard"
-                  icon={<AssessmentOutlinedIcon />}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
-              </HasAccess>
-
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "editor"]}>
 
                 <Item
                   title="Список инцидентов"
@@ -337,12 +328,24 @@ const Sidebar = () => {
                 />
               </HasAccess>
 
-              <HasAccess roles={["manager"]}>
+              <HasAccess roles={["admin", "user", "editor"]}>
+                <Item
+                  title="Дашборд"
+                  to="/dashboard"
+                  icon={<AssessmentOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              </HasAccess>
+
+
+
+              <HasAccess roles={["admin", "user", "editor"]}>
 
                 <Item
-                  title="Уведомления"
-                  to="/notifications"
-                  icon={<NotificationsNoneOutlinedIcon />}
+                  title="Метрики"
+                  to="/metrics"
+                  icon={<SettingsSuggestOutlinedIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
@@ -350,11 +353,12 @@ const Sidebar = () => {
 
             </SubMenu>
 
+            <HasAccess roles={["admin"]}>
+
             <SubMenu
               icon={<AdminPanelSettingsOutlinedIcon />}
               title="Администрирование"
             >
-              <HasAccess roles={["manager"]}>
 
                 <Item
                   title={
@@ -369,9 +373,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </HasAccess>
-
-              <HasAccess roles={["manager"]}>
+            
                 <Item
                   title={
                     <CustomTitle>
@@ -386,9 +388,7 @@ const Sidebar = () => {
                   setSelected={setSelected}
                 />
 
-              </HasAccess>
-
-              <HasAccess roles={["manager"]}>
+              
                 <Item
                   title="Отчётность"
                   to="/reporting"
@@ -396,9 +396,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </HasAccess>
-
-              <HasAccess roles={["manager"]}>
+              
 
                 <Item
                   title={
@@ -413,8 +411,7 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </HasAccess>
-              <HasAccess roles={["manager"]}>
+              
 
                 <Item
                   title="Протокол изменений"
@@ -423,9 +420,9 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-              </HasAccess>
 
             </SubMenu>
+            </HasAccess>
 
           </Box>
 

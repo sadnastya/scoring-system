@@ -18,7 +18,7 @@ const SignInForm = () => {
   const navigate = useNavigate();
 
   const handleFormSubmit = (values) => {
-    const address = 'http://90.156.156.3:5000/api/auth/login';
+    const address = 'http://localhost:5000/api/auth/login';
     const params = {
       method: 'POST',
       headers: {
@@ -41,11 +41,10 @@ const SignInForm = () => {
       if (data && data.access_token) {
         login(data.access_token);
         
-        // TODO: данные должны приходить с бэка 
-        // Note: один пользователь может иметь несколько ролей
+        
         setUser({
-          id: "2",
-          roles: ["manager"], 
+          id: "1",
+          roles: data.roles,
         })
 
         navigate("/quoteOsago");

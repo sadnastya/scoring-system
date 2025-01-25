@@ -124,9 +124,9 @@ const ModelCatalog = () => {
     return (
         <>
             <Header title="Каталог моделей" sx={{ marginLeft: 3 }} />
-            <Box sx={{ padding: 3, backgroundColor: "#1A202C", minHeight: "100vh", color: "#fff" }}>
+            <Box sx={{ padding: 3, backgroundColor: "primary", minHeight: "100vh", color: "#fff" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
-                    <Button variant="contained" sx={{ backgroundColor: "#7e6fd3" }} onClick={handleOpenDialog}>
+                    <Button variant="contained" sx={{color: "#141b2d", backgroundColor: "secondary.main" }} onClick={handleOpenDialog}>
                         Добавить новую модель
                     </Button>
                 </Box>

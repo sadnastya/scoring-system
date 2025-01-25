@@ -128,7 +128,7 @@ const ListQuality = () => {
   }, []);
 
   return (
-    <Box p={3} bgcolor="#1E1E2E" color="white">
+    <Box p={3} bgcolor="#141b2d" color="white">
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <span>Выбрано: {selected.length}</span>
         <Box display="flex" alignItems="center">
@@ -223,18 +223,21 @@ const ListQuality = () => {
           </Popover>
         </Box>
       </Box>
-      <TableContainer component={Paper}>
+
+
+      <TableContainer component={Paper} sx={{ backgroundColor: "#141b2d" }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">
+              <TableCell padding="checkbox" sx={{ border: "1px solid #ddd", textAlign: "center", color: "#fff", "&.Mui-checked": { color: "third.main" } }}>
                 <Checkbox
+                  sx={{ color: "#fff", "&.Mui-checked": { color: "third.main" } }}
                   indeterminate={selected.length > 0 && selected.length < filteredRows.length}
                   checked={selected.length === filteredRows.length}
                   onChange={handleSelectAllClick}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                 <TableSortLabel
                   active={orderBy === "id"}
                   direction={order}
@@ -243,8 +246,8 @@ const ListQuality = () => {
                 >
                   № проверки
                 </TableSortLabel>
-              </TableCell>
-              <TableCell>
+              </TableCell >
+              <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                 <TableSortLabel
                   active={orderBy === "product_type"}
                   direction={order}
@@ -254,7 +257,7 @@ const ListQuality = () => {
                   Вид продукта
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                 <TableSortLabel
                   active={orderBy === "status"}
                   direction={order}
@@ -264,7 +267,7 @@ const ListQuality = () => {
                   Статус проверки
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              <TableCell sx={{ border: "1px solid #ddd", textAlign: "center" }}>
                 <TableSortLabel
                   active={orderBy === "date"}
                   direction={order}
@@ -285,16 +288,16 @@ const ListQuality = () => {
                   onClick={() => handleClick(row.id)}
                   role="checkbox"
                   selected={isItemSelected}
-                  
+
                   hover
                 >
-                  <TableCell padding="checkbox" >
-                    <Checkbox checked={isItemSelected} />
+                  <TableCell padding="checkbox" sx={{ border: "1px solid #ddd", textAlign: "center" }}>
+                    <Checkbox sx={{ color: "#fff", "&.Mui-checked": { color: "third.main" } }} checked={isItemSelected} />
                   </TableCell>
-                  <TableCell style={{ fontSize: '20px' }}>{row.id}</TableCell>
-                  <TableCell style={{ fontSize: '20px' }}>{row.product_type}</TableCell>
-                  <TableCell style={{ fontSize: '20px' }}>{row.status ? "Пройдено" : "Не пройдено"}</TableCell>
-                  <TableCell style={{ fontSize: '20px' }}>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px", fontFamily: "Source Code Pro, sans-serif" }}>{row.id}</TableCell>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px", fontFamily: "Source Code Pro, sans-serif" }}>{row.product_type}</TableCell>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px", fontFamily: "Source Code Pro, sans-serif" }}>{row.status ? "Пройдено" : "Не пройдено"}</TableCell>
+                  <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px", fontFamily: "Source Code Pro, sans-serif" }}>
                     {moment(row.date).format('MMMM Do YYYY, HH:mm:ss')}
                   </TableCell>
                 </TableRow>

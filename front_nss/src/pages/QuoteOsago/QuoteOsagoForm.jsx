@@ -20,11 +20,13 @@ const style = {
   p: 4,
 };
 
+
+
 const initialValues = {
   quote: {
     header: {
-      runId: 'id',
-      quoteId: 'id',
+      runId: "default_run_id",
+      quoteId: 'default_quote_id',
       dateTime: new Date().toISOString(),
     },
     product: {
@@ -126,6 +128,8 @@ const Page = () => {
   });
 
   const handleSubmit = async (values) => {
+    const runIdvalue = Math.floor(Math.random() * (100000 - 1000 + 1)) + 1000;
+    values.quote.header.runId = runIdvalue.toString();
   try {
     const response = await api.post('/quote', values);
 
@@ -186,33 +190,12 @@ const Page = () => {
 
           <Form onSubmit={handleSubmit}>
 
-            <Field
-              name="quote.header.runId"
-              placeholder="Run ID"
-              component={MuiTextField}
-              onBlur={handleBlur}
-              onChange={handleChange}
-              error={!!touched.quote?.header?.runId && !!errors.quote?.header?.runId}
-              helperText={touched.quote?.header?.runId && errors.quote?.header?.runId}
-
-            />
-
-            <Field
-              name="quote.header.quoteId"
-              placeholder="Quote ID"
-              component={MuiTextField}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={!!touched.quote?.header?.quoteId && !!errors.quote?.header?.quoteId}
-              helperText={touched.quote?.header?.quoteId && errors.quote?.header?.quoteId}
-            />
-
             <FieldArray name="quote.subjects">
               {({ push, remove }) => (
                 <div>
                   {values.quote.subjects.map((subject, index) => (
                     <div key={index}>
-                      <h3>Subject {index + 1}</h3>
+                      <Typography variant='h4' margin={2}>Клиент №{index + 1}</Typography>
 
                       <Field
                         name={`quote.subjects.${index}.secondName`}
@@ -251,7 +234,7 @@ const Page = () => {
 
 
                       <FormControl variant="filled" sx={{ m: 1, minWidth: 120 }}>
-                        <InputLabel>Gender</InputLabel>
+                        <InputLabel>Пол</InputLabel>
                         <Field
                           as={Select}
                           name={`quote.subjects.${index}.gender`}
@@ -269,7 +252,7 @@ const Page = () => {
                           <div>
                             {subject.addresses.map((address, addressIndex) => (
                               <div key={addressIndex}>
-                                <h4>Address {addressIndex + 1}</h4>
+                                <Typography variant='h5' margin={2}>Адрес №{addressIndex + 1}</Typography>
                                 <Field
                                   name={`quote.subjects.${index}.addresses.${addressIndex}.country`}
                                   placeholder="Country"
@@ -319,7 +302,7 @@ const Page = () => {
                                 />
 
                                 <Box >
-                                  <Button type="button" color="removing" variant="contained" onClick={() => removeAddress(addressIndex)}>Remove Address</Button>
+                                  <Button type="button" color="removing" variant="contained" onClick={() => removeAddress(addressIndex)}>Удалить адрес</Button>
                                 </Box>
                               </div>
                             ))}
@@ -329,7 +312,7 @@ const Page = () => {
                               gridTemplateColumns="repeat(6, minmax(0, 1fr))"
                             >
                               <Button type="button" color="secondary" variant="contained" sx={{ mt: 2 }} onClick={() => pushAddress({ country: '', region: '', city: '', street: '', houseNumber: '', apartmentNumber: '' })}>
-                                Add Another Address
+                                Добавить еще один адрес
                               </Button>
                             </Box>
                           </div>
@@ -341,7 +324,7 @@ const Page = () => {
                           <div>
                             {subject.documents.map((document, documentIndex) => (
                               <div key={documentIndex}>
-                                <h4>Document {documentIndex + 1}</h4>
+                                <Typography variant='h5' margin={2}>Документ №{documentIndex + 1}</Typography>
                                 <Field
                                   name={`quote.subjects.${index}.documents.${documentIndex}.documentType`}
                                   placeholder="Document Type"

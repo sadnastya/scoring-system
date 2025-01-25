@@ -6,7 +6,7 @@ from sqlalchemy import text
 from quotes.config import db, logger
 from quotes.models.dq import CheckProductStatus
 from quotes.routes.dq import dq1, dq2
-from quotes.utils import QuoteManager, token_required, validate_input_data
+from quotes.utils import QuoteManager, token_required
 
 bp = Blueprint("quotes", __name__)
 
@@ -173,8 +173,11 @@ def handle_quote(user):
                     dq1_data = dq1_data.get_json()
                     # dq1_data["type"] = "DQ1 failed"
                     return jsonify(dq1_data), dq1_status_code
-        # если все ок, то просто дальше возращаем ответ:
-        # ответ от dq2эндпоинта:
+        else:
+            return (
+                jsonify({"message": "DQ1 выключена. Проверка невозможна."}),
+                202,
+            )
         dq2_status = any(
             check.condition
             for check in (
@@ -195,8 +198,8 @@ def handle_quote(user):
                     dq2_data = dq2_data.get_json()
                     # dq2_data["type"] = "DQ2 failed"
                     return jsonify(dq2_data), dq2_status_code
-        # validated_data = dq1_response  # TODO: РЕФАКТОР
-        validated_data = validate_input_data(input_data)
+        validated_data = dq1_response
+        # validated_data = validate_input_data(input_data)
         # validated_data = input_data  # По умолчанию input_data
         # if dq1_status and dq1_response and dq1_response[1] == 200:
         #     validated_data = dq1_response[0]
