@@ -33,8 +33,8 @@ const ModelCatalog = () => {
         params.append("page", 1);
         params.append("per_page", 10);
         const response = await api.get(`/model_catalog/?${params.toString()}`);
-        setModels(response.data.data);
-        console.log(models);
+        const sortedModels = response.data.data.sort((a, b) => a.model_id - b.model_id);
+        setModels(sortedModels);
     };
 
     const SwitchStyle = {
@@ -79,11 +79,15 @@ const ModelCatalog = () => {
                 status: updatedModel.status,
             });
     
-            setModels(updatedModels);
+            // Сортируем массив после обновления статуса
+            const sortedModels = updatedModels.sort((a, b) => a.model_id - b.model_id);
+    
+            setModels(sortedModels);
         } catch (error) {
             console.error("Ошибка при обновлении статуса модели:", error);
         }
     };
+    
 
     const handleCreation = async () => {
         try {
@@ -119,7 +123,7 @@ const ModelCatalog = () => {
 
     React.useEffect(() => {
         getModels();
-    }, );
+    }, []);
 
     return (
         <>

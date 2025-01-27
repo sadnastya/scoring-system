@@ -19,7 +19,12 @@ import {
   Tabs,
   Tab,
   Modal,
-  Typography
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Switch
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import api from "../../../utils/api";
@@ -44,7 +49,7 @@ const AccountManagement = () => {
     setOpenError(true)
   };
 
-  
+
 
 
   const getUsers = async () => {
@@ -52,7 +57,7 @@ const AccountManagement = () => {
 
     params.append("page", 1);
     params.append("per_page", 50);
-    
+
     const response = await api.get(`/auth/admin/users?${params.toString()}`);
     setAccounts(response.data.users);
   };
@@ -70,7 +75,7 @@ const AccountManagement = () => {
       getUsers();
 
 
-      
+
     } catch (error) {
       handleOpenError((error.response.data.detals ?? "Ошибка") + ": " + error.response.data.error);
     }
@@ -103,11 +108,43 @@ const AccountManagement = () => {
     p: 4,
   };
 
+  const [editOpen, setEditOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
 
+  const handleEditOpen = (incident) => {
+    setEditData(incident);
+    setEditOpen(true);
+  };
 
-    React.useEffect(() => {
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditData(null);
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      const response = await api.put(`/auth/admin/${editData.id}`, editData);
+      console.log("Инцидент успешно обновлён:", response.data);
+
       getUsers();
-    }, []);
+      handleEditClose();
+    } catch (error) {
+      handleOpenError((error.response.data.detals ?? "Ошибка") + ": " + error.response.data.error)
+    }
+  };
+
+
+
+
+
+
+  React.useEffect(() => {
+    getUsers();
+  }, []);
 
   return (
     <Box sx={{ p: 3, backgroundColor: "primary", minHeight: "100vh", color: "#fff" }}>
@@ -121,7 +158,7 @@ const AccountManagement = () => {
         centered
       >
         <Tab label="Управление учётными записями" sx={{ color: "#eceff4" }} />
-        <Tab label="Управление ролями и доступом" sx={{ color: "#eceff4" }} href="/manageRoles"/>
+        <Tab label="Управление ролями и доступом" sx={{ color: "#eceff4" }} href="/manageRoles" />
       </Tabs>
 
       {tab === 0 && (
@@ -240,6 +277,7 @@ const AccountManagement = () => {
                       <Button
                         variant="text"
                         sx={{ color: "#88c0d0", ":hover": { color: "#81a1c1" } }}
+                        onClick={() => handleEditOpen(row)}
                       >
                         Редактировать
                       </Button>
@@ -249,10 +287,86 @@ const AccountManagement = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <Modal
+            open={IsOpenError}
+            onClose={handleCloseError}>
+            <Box sx={style} display={"grid"}>
+              <Typography variant='h5' marginBottom={"auto"}>{error_message}</Typography>
+
+              <Button onClick={handleCloseError} color="secondary" >Close</Button>
+            </Box>
+          </Modal>
+
+          {/* Edit Modal */}
+          <Dialog open={editOpen} onClose={handleEditClose} fullWidth maxWidth="sm" bgcolor="#1e1e2f">
+            <DialogTitle><Typography variant="h3">Редактирование пользователя</Typography></DialogTitle>
+            <DialogContent>
+              <Box display="grid" gap={2}>
+                <Box display="flex">
+                  <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                    email пользователя
+                  </Box>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={1}
+                    value={editData?.email || ""}
+                    onChange={(e) => handleEditChange("email", e.target.value)}
+                  />
+                </Box>
+                <Box display="flex">
+                  <Box flex={1} bgcolor="#2b2b3d" p={1}>
+                    Изменить роль
+                  </Box>
+                  <Select
+                    fullWidth
+                    value={editData?.roles || ""}
+                    onChange={(e) => handleEditChange("roles", e.target.value)}
+                  >
+                    <MenuItem value="admin">Администратор</MenuItem>
+                    <MenuItem value="editor">Редактор</MenuItem>
+                    <MenuItem value="user">Пользователь</MenuItem>
+
+                  </Select>
+                </Box>
+                <Box display="flex" alignItems="center">
+        <Box flex={1} bgcolor="#2b2b3d" p={1}>
+          Заблокировать аккаунт?
+        </Box>
+        <Switch
+          checked={editData?.is_blocked || false}
+          onChange={(e) => handleEditChange("is_blocked", e.target.checked)}
+          color="secondary"
+        />
+      </Box>
+
+
+              </Box>
+            </DialogContent>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              px={3}
+              py={1}
+              bgcolor="#2b2b3d"
+            >
+
+              <DialogActions>
+                <Button onClick={handleEditClose} color="third">
+                  Отмена
+                </Button>
+                <Button onClick={handleEditSubmit} color="secondary" variant="contained">
+                  Сохранить изменения
+                </Button>
+              </DialogActions>
+            </Box>
+          </Dialog>
         </>
       )}
 
-<Modal
+      <Modal
         open={IsOpenError}
         onClose={handleCloseError}>
         <Box sx={style} display={"grid"}>

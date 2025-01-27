@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from quotes.config import db, logger
 from quotes.models.dq import CheckProductStatus
-from quotes.routes.dq import dq1, dq2
+from quotes.routes.dq import dq1, dq2, log_check_history
 from quotes.utils import QuoteManager, token_required
 
 bp = Blueprint("quotes", __name__)
@@ -29,6 +29,7 @@ def send_to_mdm(data):
         first_name = subject.firstName
         second_name = subject.secondName
         birth_date = subject.birthDate
+        gender = subject.gender.capitalize()
         documents = subject.documents
         for document in documents:
             document_type = document.documentType
@@ -45,6 +46,7 @@ def send_to_mdm(data):
                 AND d.document_type = :document_type
                 AND d.document_number = :document_number
                 AND d.issue_date = :issue_date
+                AND s.gender = :gender
             """
             )
             result = db.session.execute(
@@ -56,6 +58,7 @@ def send_to_mdm(data):
                     "document_type": document_type,
                     "document_number": document_number,
                     "issue_date": issue_date,
+                    "gender": gender,
                 },
             ).fetchall()
             if result:
@@ -150,20 +153,35 @@ def handle_quote(user):
     input_data = request.get_json()
     if input_data is None:
         return jsonify({"error": "No data in request"}), 400
+
     try:
         # ответ от dq1 эндпоинта:
         product_code = (
             input_data.get("quote").get("product").get("productCode", None)
         )
-        dq1_status = (
+        dq1_db = (
             db.session.query(CheckProductStatus)
             .filter(
                 CheckProductStatus.check_id == 1,
                 CheckProductStatus.product_code == product_code,
             )
             .first()
-            .condition
         )
+        if not dq1_db:
+            runId = input_data.get("quote").get("header").get("runId", None)
+            # log_check_history(
+            #     check_id=1,
+            #     product_type="osago",
+            #     status=False,
+            #     runId=runId,
+            # )
+            return jsonify(
+                {
+                    "error": f"Проверьте структуру JSON, product_code {product_code} не найден."  # noqa
+                }
+            )
+
+        dq1_status = dq1_db.condition
         if dq1_status:
             dq1_response = dq1(input_data)
             if isinstance(dq1_response, tuple):
@@ -172,11 +190,34 @@ def handle_quote(user):
                 if dq1_status_code != 200 and dq1_status_code != 403:
                     dq1_data = dq1_data.get_json()
                     # dq1_data["type"] = "DQ1 failed"
+
+                    runId = (
+                        input_data.get("quote")
+                        .get("header")
+                        .get("runId", None)
+                    )
+                    product_type = "osago"
+                    log_check_history(
+                        check_id=1,
+                        product_type=product_type,
+                        status=False,
+                        runId=runId,
+                    )
                     return jsonify(dq1_data), dq1_status_code
         else:
+            runId = input_data.get("quote").get("header").get("runId", None)
+            product_type = (
+                input_data.get("quote").get("product").get("productType", None)
+            )
+            log_check_history(
+                check_id=1,
+                product_type=product_type,
+                status=False,
+                runId=runId,
+            )
             return (
                 jsonify({"message": "DQ1 выключена. Проверка невозможна."}),
-                202,
+                400,
             )
         dq2_status = any(
             check.condition
@@ -197,8 +238,34 @@ def handle_quote(user):
                 if dq2_status_code != 200:
                     dq2_data = dq2_data.get_json()
                     # dq2_data["type"] = "DQ2 failed"
+                    runId = (
+                        input_data.get("quote")
+                        .get("header")
+                        .get("runId", None)
+                    )
+                    product_type = (
+                        input_data.get("quote")
+                        .get("product")
+                        .get("productType", None)
+                    )
+                    log_check_history(
+                        check_id=2,
+                        product_type=product_type,
+                        status=False,
+                        runId=runId,
+                    )
                     return jsonify(dq2_data), dq2_status_code
         validated_data = dq1_response
+        runId = input_data.get("quote").get("header").get("runId", None)
+        product_type = (
+            input_data.get("quote").get("product").get("productType", None)
+        )
+        log_check_history(
+            check_id=2,
+            product_type=product_type,
+            status=True,
+            runId=runId,
+        )
         # validated_data = validate_input_data(input_data)
         # validated_data = input_data  # По умолчанию input_data
         # if dq1_status and dq1_response and dq1_response[1] == 200:

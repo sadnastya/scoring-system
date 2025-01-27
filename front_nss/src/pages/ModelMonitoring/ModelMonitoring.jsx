@@ -171,7 +171,7 @@ const ModelMonitoring = () => {
             }
             label={
               <Typography sx={{ color: "#fff" }}>
-                Отправить отчет на почту(разработка в процессе)
+                Отправить отчет на почту
               </Typography>
             }
           />

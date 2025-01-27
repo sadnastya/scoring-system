@@ -39,6 +39,8 @@ const RoleManagement = () => {
     "Мониторинг моделей": { view: true, edit: false, delete: false },
   });
 
+  
+
   const handlePermissionChange = (category, type, subPermission) => {
     setPermissions((prev) => {
       const updated = { ...prev };

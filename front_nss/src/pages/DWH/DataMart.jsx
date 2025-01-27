@@ -216,12 +216,12 @@ const DataMart = () => {
         </Grid>
 
         <Box mt={3}>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{backgroundColor: "#141b2d"}}>
             <Table>
               <TableHead>
                 <TableRow>
                   {columns.map((col) => (
-                    <TableCell key={col}>{col}</TableCell>
+                    <TableCell sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "18px" }} key={col}>{col}</TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -231,7 +231,7 @@ const DataMart = () => {
                   .map((row, index) => (
                     <TableRow key={index}>
                       {Object.values(row).map((value, i) => (
-                        <TableCell key={i}>{value}</TableCell>
+                        <TableCell key={i} sx={{ border: "1px solid #ddd", textAlign: "center", fontSize: "14px" }}>{value}</TableCell>
                       ))}
                     </TableRow>
                   ))}

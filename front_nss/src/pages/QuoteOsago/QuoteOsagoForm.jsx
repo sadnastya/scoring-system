@@ -35,19 +35,19 @@ const initialValues = {
     },
     subjects: [
       {
-        firstName: 'John',
-        secondName: 'Doe',
-        middleName: 'Middle',
+        firstName: 'Петр',
+        secondName: 'Петров',
+        middleName: 'Петрович',
         birthDate: '1990-01-01',
         gender: 'Male',
         addresses: [
           {
-            country: 'Russia',
-            region: 'Moscow',
-            city: 'Moscow',
-            street: 'Zelenaya',
-            houseNumber: '4',
-            apartmentNumber: '',
+            country: 'Россия',
+            region: 'Москва',
+            city: 'Москва',
+            street: 'Новая',
+            houseNumber: '24',
+            apartmentNumber: '5',
           },
         ],
         documents: [
@@ -137,7 +137,8 @@ const Page = () => {
       handleOpen(response.data)
     }
   } catch (error) {
-    handleOpenError((error.response.data.detals ?? "Ошибка") + ": " + error.response.data.error)
+    console.log(error);
+    handleOpenError((error.response.data.detals ?? "Ошибка") + ": " + (error.response.data.error ?? error.response.data.message))
   }
   };
 
@@ -242,8 +243,8 @@ const Page = () => {
                           error={!!touched.quote?.subjects?.[index]?.gender && !!errors.quote?.subjects?.[index]?.gender}
                           helperText={touched.quote?.subjects?.[index]?.gender && errors.quote?.subjects?.[index]?.gender}
                         >
-                          <MenuItem value="male">Male</MenuItem>
-                          <MenuItem value="female">Female</MenuItem>
+                          <MenuItem value="male">МУЖ</MenuItem>
+                          <MenuItem value="female">ЖЕН</MenuItem>
                         </Field>
                       </FormControl>
 
